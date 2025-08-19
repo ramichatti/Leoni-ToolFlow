@@ -1,4 +1,4 @@
-# ⚙️ ToolFlow — Symfony 6.4.*
+# ⚙️ ToolFlow Leoni — Symfony 6.4.*
 
 [![Symfony](https://img.shields.io/badge/Symfony-v6.4-black?logo=symfony)](https://symfony.com/)
 [![PHP](https://img.shields.io/badge/PHP-%5E8.2-blue?logo=php)](https://www.php.net/)
@@ -64,6 +64,7 @@ php bin/console doctrine:migrations:migrate
 ### 4️⃣ Lancer le serveur Symfony
 ```bash
 symfony server:start
+```
 
 
 
