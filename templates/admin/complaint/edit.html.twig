@@ -1,0 +1,691 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Edit Complaint{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .complaint-info {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    
+    .complaint-subject {
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #333;
+        line-height: 1.3;
+    }
+    
+    .complaint-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .meta-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(13, 110, 253, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: #0d6efd;
+    }
+    
+    .meta-content {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .meta-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-bottom: 0.1rem;
+    }
+    
+    .meta-value {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .user-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #5a5a5a;
+    }
+    
+    .description-box {
+        background-color: #f8f9fc;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        border: 1px solid #e3e6f0;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+        position: relative;
+    }
+    
+    .description-box::before {
+        content: '\f10d';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        top: -0.5rem;
+        left: 1rem;
+        background-color: #fff;
+        color: #0d6efd;
+        padding: 0 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+    }
+    
+    .form-section-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #333;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .form-section-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: rgba(13, 110, 253, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: #0d6efd;
+    }
+    
+    .status-option {
+        display: none;
+    }
+    
+    .status-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 1rem;
+    }
+    
+    .status-label:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .status-option:checked + .status-label {
+        border-color: #0d6efd;
+        background-color: rgba(13, 110, 253, 0.05);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .status-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+    
+    .status-pending .status-icon {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .status-processing .status-icon {
+        background-color: rgba(13, 202, 240, 0.1);
+        color: #0dcaf0;
+    }
+    
+    .status-resolved .status-icon {
+        background-color: rgba(25, 135, 84, 0.1);
+        color: #198754;
+    }
+    
+    .status-rejected .status-icon {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    
+    .status-content {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .status-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+    
+    .status-description {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    .response-editor {
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .response-editor-toolbar {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #ced4da;
+        padding: 0.5rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .toolbar-btn {
+        background: none;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #495057;
+        transition: all 0.2s;
+    }
+    
+    .toolbar-btn:hover {
+        background-color: #e9ecef;
+        color: #0d6efd;
+    }
+    
+    .toolbar-divider {
+        width: 1px;
+        background-color: #ced4da;
+        margin: 0 0.25rem;
+    }
+    
+    .response-templates {
+        margin-top: 1rem;
+    }
+    
+    .template-btn {
+        margin-bottom: 0.5rem;
+        text-align: left;
+        transition: all 0.2s;
+    }
+    
+    .template-btn:hover {
+        transform: translateX(5px);
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 2rem;
+    }
+    
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+    
+    .card-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #0d6efd;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .card-title i {
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0 text-gray-800">Edit Complaint</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_admin_complaints') }}">Complaints</a></li>
+                        <li class="breadcrumb-item"><a href="{{ path('app_admin_complaint_show', {'id': complaint.id}) }}">View Complaint #{{ complaint.id }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                    </ol>
+                </nav>
+            </div>
+            <div>
+                <a href="{{ path('app_admin_complaint_show', {'id': complaint.id}) }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Details
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="card-title">
+                            <i class="fas fa-edit"></i> Update Complaint Status & Response
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="complaint-info">
+                            <div class="complaint-subject">{{ complaint.subject }}</div>
+                            <div class="complaint-meta">
+                                <div class="meta-item">
+                                    <div class="meta-icon">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                    <div class="meta-content">
+                                        <span class="meta-label">Submitted on</span>
+                                        <span class="meta-value">{{ complaint.createdAt|date('d/m/Y H:i') }}</span>
+                                    </div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="user-info">
+                                        <div class="user-avatar">
+                                            {{ complaint.user.firstName|first }}{{ complaint.user.lastName|first }}
+                                        </div>
+                                        <span>{{ complaint.user.firstName }} {{ complaint.user.lastName }}</span>
+                                    </div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-icon">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                    <div class="meta-content">
+                                        <span class="meta-label">Reference ID</span>
+                                        <span class="meta-value">#{{ complaint.id }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="description-box">
+                                {{ complaint.description|nl2br }}
+                            </div>
+                        </div>
+
+                        {{ form_start(form, {'attr': {'id': 'complaint-form'}}) }}
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <div class="form-section-icon">
+                                        <i class="fas fa-tasks"></i>
+                                    </div>
+                                    <span>Update Status</span>
+                                </div>
+                                <div class="status-options">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="radio" class="status-option" name="status_radio" id="status_pending" value="PENDING" {% if complaint.status.value == 'PENDING' %}checked{% endif %}>
+                                            <label for="status_pending" class="status-label status-pending">
+                                                <div class="status-icon">
+                                                    <i class="fas fa-clock"></i>
+                                                </div>
+                                                <div class="status-content">
+                                                    <div class="status-title">Pending</div>
+                                                    <div class="status-description">Awaiting review</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="radio" class="status-option" name="status_radio" id="status_processing" value="PROCESSING" {% if complaint.status.value == 'PROCESSING' %}checked{% endif %}>
+                                            <label for="status_processing" class="status-label status-processing">
+                                                <div class="status-icon">
+                                                    <i class="fas fa-spinner"></i>
+                                                </div>
+                                                <div class="status-content">
+                                                    <div class="status-title">Processing</div>
+                                                    <div class="status-description">Under investigation</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="radio" class="status-option" name="status_radio" id="status_resolved" value="RESOLVED" {% if complaint.status.value == 'RESOLVED' %}checked{% endif %}>
+                                            <label for="status_resolved" class="status-label status-resolved">
+                                                <div class="status-icon">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                                <div class="status-content">
+                                                    <div class="status-title">Resolved</div>
+                                                    <div class="status-description">Successfully addressed</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="radio" class="status-option" name="status_radio" id="status_rejected" value="REJECTED" {% if complaint.status.value == 'REJECTED' %}checked{% endif %}>
+                                            <label for="status_rejected" class="status-label status-rejected">
+                                                <div class="status-icon">
+                                                    <i class="fas fa-times-circle"></i>
+                                                </div>
+                                                <div class="status-content">
+                                                    <div class="status-title">Rejected</div>
+                                                    <div class="status-description">Not applicable</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {{ form_errors(form.status) }}
+                                    <div class="form-text text-muted mb-3">
+                                        <i class="fas fa-info-circle me-1"></i> Changing the status will notify the user about the update.
+                                    </div>
+                                    {# Render the hidden select, but keep it visible to the browser for submission #}
+                                    <div style="position: absolute; left: -9999px; visibility: hidden;">
+                                        {{ form_widget(form.status) }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <div class="form-section-title">
+                                    <div class="form-section-icon">
+                                        <i class="fas fa-reply"></i>
+                                    </div>
+                                    <span>Admin Response</span>
+                                </div>
+                                
+                                <div class="response-editor">
+                                    <div class="response-editor-toolbar">
+                                        <button type="button" class="toolbar-btn" data-action="bold" title="Bold">
+                                            <i class="fas fa-bold"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" data-action="italic" title="Italic">
+                                            <i class="fas fa-italic"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" data-action="underline" title="Underline">
+                                            <i class="fas fa-underline"></i>
+                                        </button>
+                                        <div class="toolbar-divider"></div>
+                                        <button type="button" class="toolbar-btn" data-action="list-ul" title="Bullet List">
+                                            <i class="fas fa-list-ul"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" data-action="list-ol" title="Numbered List">
+                                            <i class="fas fa-list-ol"></i>
+                                        </button>
+                                        <div class="toolbar-divider"></div>
+                                        <button type="button" class="toolbar-btn" data-action="clear" title="Clear Formatting">
+                                            <i class="fas fa-eraser"></i>
+                                        </button>
+                                    </div>
+                                    {{ form_widget(form.adminResponse, {'attr': {'class': 'form-control border-0', 'rows': 8}}) }}
+                                </div>
+                                {{ form_errors(form.adminResponse) }}
+                                <div class="form-text text-muted mt-2">
+                                    <i class="fas fa-info-circle me-1"></i> This response will be visible to the user who submitted the complaint.
+                                </div>
+                                
+                                <div class="response-templates">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="templateDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-file-alt me-2"></i> Response Templates
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="templateDropdown">
+                                            <li><button type="button" class="dropdown-item template-btn" data-template="pending">Pending Template</button></li>
+                                            <li><button type="button" class="dropdown-item template-btn" data-template="processing">Processing Template</button></li>
+                                            <li><button type="button" class="dropdown-item template-btn" data-template="resolved">Resolved Template</button></li>
+                                            <li><button type="button" class="dropdown-item template-btn" data-template="rejected">Rejected Template</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <a href="{{ path('app_admin_complaint_show', {'id': complaint.id}) }}" class="btn btn-secondary action-btn">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary action-btn">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="card-title">
+                            <i class="fas fa-info-circle"></i> Status Guide
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="status-guide">
+                            <div class="status-item mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-warning text-dark me-2">Pending</span>
+                                    <span class="fw-bold">Awaiting Review</span>
+                                </div>
+                                <p class="small text-muted mb-0">The complaint has been received but not yet processed.</p>
+                            </div>
+                            
+                            <div class="status-item mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-info me-2">Processing</span>
+                                    <span class="fw-bold">Under Investigation</span>
+                                </div>
+                                <p class="small text-muted mb-0">The complaint is currently being investigated or addressed.</p>
+                            </div>
+                            
+                            <div class="status-item mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-success me-2">Resolved</span>
+                                    <span class="fw-bold">Successfully Addressed</span>
+                                </div>
+                                <p class="small text-muted mb-0">The complaint has been successfully resolved.</p>
+                            </div>
+                            
+                            <div class="status-item">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-danger me-2">Rejected</span>
+                                    <span class="fw-bold">Not Applicable</span>
+                                </div>
+                                <p class="small text-muted mb-0">The complaint has been reviewed but cannot be processed or is invalid.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="card-title">
+                            <i class="fas fa-lightbulb"></i> Response Tips
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="response-tips">
+                            <li class="mb-2">Be clear and concise in your response</li>
+                            <li class="mb-2">Address all points raised in the complaint</li>
+                            <li class="mb-2">Maintain a professional and respectful tone</li>
+                            <li class="mb-2">Provide specific details about any actions taken</li>
+                            <li>Include contact information if further assistance is needed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle toolbar buttons
+        const textarea = document.getElementById('{{ form.adminResponse.vars.id }}');
+        const toolbarButtons = document.querySelectorAll('.toolbar-btn');
+
+        toolbarButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                const selectionStart = textarea.selectionStart;
+                const selectionEnd = textarea.selectionEnd;
+                const selectedText = textarea.value.substring(selectionStart, selectionEnd);
+
+                let replacement = selectedText;
+                let cursorOffset = 0;
+
+                switch(action) {
+                    case 'bold':
+                        replacement = `**${selectedText}**`;
+                        cursorOffset = 2;
+                        break;
+                    case 'italic':
+                        replacement = `*${selectedText}*`;
+                        cursorOffset = 1;
+                        break;
+                    case 'underline':
+                        replacement = `_${selectedText}_`;
+                        cursorOffset = 1;
+                        break;
+                    case 'list-ul':
+                        replacement = selectedText.split('\n').map(line => `- ${line}`).join('\n');
+                        break;
+                    case 'list-ol':
+                        replacement = selectedText.split('\n').map((line, index) => `${index + 1}. ${line}`).join('\n');
+                        break;
+                    case 'clear':
+                        textarea.value = '';
+                        return;
+                }
+
+                // Replace the selected text with the formatted text
+                textarea.value = 
+                    textarea.value.substring(0, selectionStart) + 
+                    replacement + 
+                    textarea.value.substring(selectionEnd);
+
+                // Restore focus and selection
+                textarea.focus();
+                if (selectedText.length === 0) {
+                    textarea.selectionStart = selectionStart + cursorOffset;
+                    textarea.selectionEnd = selectionStart + cursorOffset;
+                } else {
+                    textarea.selectionStart = selectionStart;
+                    textarea.selectionEnd = selectionStart + replacement.length;
+                }
+            });
+        });
+
+        // Handle response templates
+        const templateButtons = document.querySelectorAll('.template-btn');
+        const templates = {
+            pending: "Dear Customer,\n\nThank you for submitting your complaint. We have received your request and it is currently pending review by our team.\n\nWe will update you as soon as we begin processing your complaint.\n\nBest regards,\nCustomer Support Team",
+            processing: "Dear Customer,\n\nWe are currently investigating the issue you reported. Our team is working diligently to address your concerns.\n\nWe may contact you for additional information if needed.\n\nThank you for your patience.\n\nBest regards,\nCustomer Support Team",
+            resolved: "Dear Customer,\n\nWe are pleased to inform you that your complaint has been resolved. \n\nHere's what we did to address your concern:\n- [Action taken]\n- [Additional steps if applicable]\n\nIf you have any further questions or concerns, please don't hesitate to contact us.\n\nBest regards,\nCustomer Support Team",
+            rejected: "Dear Customer,\n\nAfter careful review of your complaint, we regret to inform you that we are unable to process it for the following reason(s):\n\n[Explain reason]\n\nIf you believe this decision was made in error or if you have additional information that might change our assessment, please submit a new complaint with the relevant details.\n\nBest regards,\nCustomer Support Team"
+        };
+
+        templateButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const templateName = this.getAttribute('data-template');
+                textarea.value = templates[templateName];
+
+                // Update the status radio button to match the template
+                const statusRadio = document.getElementById(`status_${templateName}`);
+                if (statusRadio) {
+                    statusRadio.checked = true;
+                    statusRadio.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+
+        // Sync status radio buttons with hidden form field
+        const statusOptions = document.querySelectorAll('.status-option');
+        const statusFormField = document.getElementById('{{ form.status.vars.id }}');
+
+        // Hide the original select element using visibility/position, not display:none
+        statusFormField.style.visibility = 'hidden';
+        statusFormField.style.position = 'absolute';
+        statusFormField.style.left = '-9999px';
+
+        // Update the hidden field when a radio button is clicked
+        statusOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                if (this.checked) {
+                    // Find the corresponding option in the select and select it
+                    const selectOptions = statusFormField.options;
+                    for (let i = 0; i < selectOptions.length; i++) {
+                        if (selectOptions[i].value === this.value) {
+                            statusFormField.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            });
+        });
+
+        // Set initial state from the hidden field
+        function updateRadioFromSelect() {
+            const selectedValue = statusFormField.options[statusFormField.selectedIndex].value;
+            const radioToSelect = document.querySelector(`.status-option[value="${selectedValue}"]`);
+            if (radioToSelect) {
+                radioToSelect.checked = true;
+            }
+        }
+
+        updateRadioFromSelect();
+
+        // Update radio buttons when the select changes (in case of form validation errors)
+        statusFormField.addEventListener('change', updateRadioFromSelect);
+    });
+</script>
+{% endblock %} 

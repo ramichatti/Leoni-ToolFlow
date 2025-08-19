@@ -1,0 +1,547 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tools List - Leoni App{% endblock %}
+
+{% block stylesheets %}
+<!-- DataTables CSS -->
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #5a5a5a;
+        --secondary-color: #3a3a3a;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --info-color: #17a2b8;
+        --warning-color: #ffc107;
+        --light-color: #f8f9fc;
+        --dark-color: #343a40;
+    }
+    
+    .content-wrapper {
+        margin-top: 90px;
+        padding: 20px;
+        background-color: #f8f9fc;
+        min-height: calc(100vh - 90px);
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+        padding: 0.5rem 0;
+        border-left: 4px solid var(--primary-color);
+        padding-left: 1rem;
+    }
+    
+    .page-header h4 {
+        font-weight: 800;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+    
+    .page-header p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        background-color: #fff;
+        margin-bottom: 2rem;
+    }
+    
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .card-header h6 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-header h6 i {
+        margin-right: 0.75rem;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+    }
+    
+    .card-body {
+        padding: 0;
+    }
+    
+    .table-responsive {
+        border-radius: 0;
+    }
+    
+    .table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .table thead th {
+        background-color: #f2f2f7;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05rem;
+        color: var(--primary-color);
+        padding: 1.2rem 1rem;
+        white-space: nowrap;
+        position: relative;
+    }
+    
+    .table thead th:first-child {
+        border-top-left-radius: 0.5rem;
+    }
+    
+    .table thead th:last-child {
+        border-top-right-radius: 0.5rem;
+    }
+    
+    .table tbody td {
+        padding: 1.2rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f1f1;
+    }
+    
+    .table tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 0.5rem;
+    }
+    
+    .table tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 0.5rem;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(240, 240, 250, 0.4);
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.35rem;
+    }
+    
+    .badge-in {
+        background-color: var(--success-color);
+        color: white;
+    }
+    
+    .badge-out {
+        background-color: var(--danger-color);
+        color: white;
+    }
+    
+    .badge-yes {
+        background-color: var(--info-color);
+        color: white;
+    }
+    
+    .badge-no {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .tool-id {
+        font-weight: 700;
+        color: var(--secondary-color);
+    }
+    
+    .date-format {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .user-info {
+        font-weight: 600;
+    }
+    
+    .machine-number {
+        font-weight: 600;
+        background-color: #f8f9fa;
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.35rem;
+        color: var(--secondary-color);
+    }
+    
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    
+    .empty-state i {
+        font-size: 3.5rem;
+        color: #dee2e6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .empty-state h4 {
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+    
+    /* DataTables Styling */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1.5rem;
+        padding: 0 1.5rem;
+    }
+    
+    .dataTables_wrapper .dataTables_length {
+        margin-top: 1.5rem;
+    }
+    
+    .dataTables_wrapper .dataTables_filter {
+        margin-top: 1.5rem;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input {
+        border-radius: 0.35rem;
+        border: 1px solid #dee2e6;
+        padding: 0.4rem 0.75rem;
+        margin-left: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(90, 90, 90, 0.25);
+        outline: none;
+    }
+    
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        padding: 1.5rem 1.5rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 0.35rem;
+        margin: 0 0.2rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #e9ecef;
+        border-color: #e9ecef;
+    }
+    
+    /* Manufacturer and description styling */
+    .manufacturer-badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background-color: #f0f0f0;
+        color: var(--secondary-color);
+    }
+    
+    .description-badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .description-critical {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .description-non-critical {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    /* Availability status */
+    .availability-badge {
+        display: inline-block;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .availability-available {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: #155724;
+    }
+    
+    .availability-unavailable {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: #721c24;
+    }
+    
+    /* Column specific styling */
+    .availability-column {
+        min-width: 120px;
+        text-align: center;
+    }
+    
+    .id-column {
+        min-width: 100px;
+    }
+    
+    .status-column {
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .machine-column {
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .cahier-column {
+        min-width: 100px;
+        text-align: center;
+    }
+    
+    .user-column {
+        min-width: 150px;
+    }
+    
+    .date-column {
+        min-width: 120px;
+    }
+    
+    /* Custom table styling */
+    .custom-table {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+    
+    .custom-table thead th {
+        background: linear-gradient(to bottom, #f8f9fa, #f2f2f7);
+        border-bottom: 2px solid #e9ecef;
+        color: #495057;
+        font-weight: 700;
+    }
+    
+    .custom-table tbody tr:nth-child(even) {
+        background-color: #fcfcfc;
+    }
+    
+    .custom-table tbody tr:hover {
+        background-color: #f2f6ff;
+    }
+    
+    /* Enhanced table styling */
+    .enhanced-table {
+        border-collapse: separate;
+        border-spacing: 0 0.5rem;
+        margin-top: -0.5rem;
+    }
+    
+    .enhanced-table thead th {
+        border: none;
+        background-color: #f8f9fc;
+        padding: 1rem 1.2rem;
+        font-size: 0.8rem;
+    }
+    
+    .enhanced-table tbody tr {
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        border-radius: 0.5rem;
+        background-color: #fff;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .enhanced-table tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        background-color: #fff;
+    }
+    
+    .enhanced-table tbody td {
+        border: none;
+        background-color: transparent;
+        padding: 1.2rem;
+    }
+    
+    .enhanced-table tbody td:first-child {
+        border-top-left-radius: 0.5rem;
+        border-bottom-left-radius: 0.5rem;
+    }
+    
+    .enhanced-table tbody td:last-child {
+        border-top-right-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'navbar.html.twig' %}
+    
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            
+            
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0"> Tools List</h6>
+                </div>
+                <div class="card-body">
+                    {% if toolsWithLastIO|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table enhanced-table" id="toolsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th class="availability-column">Availability</th>
+                                        <th class="id-column">Inventory No</th>
+                                        <th>Manufacturer</th>
+                                        <th>Description</th>
+                                        <th>DNAS</th>
+                                        <th>Emplacement</th>
+                                        <th>Armoire</th>
+                                        <th class="status-column">Status</th>
+                                        <th class="machine-column">Machine</th>
+                                        <th class="cahier-column">With Cahier</th>
+                                        <th class="user-column">User</th>
+                                        <th class="date-column">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in toolsWithLastIO %}
+                                        <tr>
+                                            <td class="availability-column">
+                                                {% if item.lastIO and ((item.lastIO.status.value ?? item.lastIO.status) == 'OUT') %}
+                                                    <span class="availability-badge availability-unavailable">Unavailable</span>
+                                                {% else %}
+                                                    <span class="availability-badge availability-available">Available</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="tool-id id-column">{{ item.tool.id }}</td>
+                                            <td>
+                                                <span class="manufacturer-badge">
+                                                    {{ item.tool.manufacturer.value }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="description-badge description-{{ item.tool.description.value|replace({' ': '-'})|lower }}">
+                                                    {{ item.tool.description.value }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {{ item.tool.dnas ?? 'N/A' }}
+                                            </td>
+                                            <td>
+                                                {{ item.tool.emplacement ?? 'N/A' }}
+                                            </td>
+                                            <td>
+                                                {{ item.tool.armoire ?? 'N/A' }}
+                                            </td>
+                                            <td class="status-column">
+                                                {% if item.lastIO %}
+                                                    <span class="badge badge-{{ (item.lastIO.status.value ?? item.lastIO.status)|lower }}">
+                                                        {{ item.lastIO.status.value ?? item.lastIO.status }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="machine-column">
+                                                {% if item.lastIO and item.lastIO.machine %}
+                                                    <span class="machine-number">
+                                                        {{ item.lastIO.machine }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="cahier-column">
+                                                {% if item.lastIO and item.lastIO.withCahier %}
+                                                    <span class="badge badge-{{ item.lastIO.withCahier == 'oui' ? 'yes' : 'no' }}">
+                                                        {{ item.lastIO.withCahier|capitalize }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="user-info user-column">
+                                                {% if item.lastIO and item.lastIO.user %}
+                                                    {{ item.lastIO.user.firstName }} {{ item.lastIO.user.lastName }}
+                                                {% else %}
+                                                    <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="date-format date-column">
+                                                {% if item.lastIO and item.lastIO.dateEntre %}
+                                                    {{ item.lastIO.dateEntre|date('d/m/Y H:i') }}
+                                                {% else %}
+                                                    <span class="text-muted">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-tools"></i>
+                            <h4>No tools available</h4>
+                            <p>There are no tools registered in the system.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#toolsTable').DataTable({
+            "order": [[11, "desc"]], // Sort by new date column index after added fields
+            "language": {
+                "lengthMenu": "Show _MENU_ entries per page",
+                "zeroRecords": "No matching tools found",
+                "info": "Showing page _PAGE_ of _PAGES_",
+                "infoEmpty": "No tools available",
+                "infoFiltered": "(filtered from _MAX_ total records)"
+            },
+            "pageLength": 10,
+            "responsive": true,
+            "columnDefs": [
+                { "width": "120px", "targets": 0 }, // Availability column
+                { "width": "100px", "targets": 1 }, // Tool ID column
+                { "width": "80px", "targets": 7 },  // Status column
+                { "width": "80px", "targets": 8 },  // Machine column
+                { "width": "100px", "targets": 9 }, // With Cahier column
+                { "width": "150px", "targets": 10 }, // User column
+                { "width": "120px", "targets": 11 }  // Date column
+            ]
+        });
+    });
+</script>
+{% endblock %}

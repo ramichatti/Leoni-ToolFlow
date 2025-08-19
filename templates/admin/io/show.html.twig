@@ -1,0 +1,427 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}I/O Record Details{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .detail-header {
+            background-color: #f8f9fc;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .detail-header h1 {
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: #5a5a5a;
+        }
+        
+        .detail-header p {
+            color: #6c757d;
+            margin-bottom: 0;
+            font-size: 1rem;
+            padding-top: 0.5rem;
+        }
+        
+        .btn-action {
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-action i {
+            margin-right: 0;
+        }
+        
+        .card {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(222, 226, 230, 0.3);
+        }
+        
+        .card-header h6 {
+            margin-bottom: 0;
+            font-weight: 700;
+            color: #5a5a5a;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: #5a5a5a;
+        }
+        
+        .table td {
+            color: #6c757d;
+        }
+        
+        .badge-status {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-in {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .badge-out {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        
+        .comparison-table th {
+            background-color: #f8f9fc;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        .comparison-table .param-name {
+            font-weight: 600;
+            width: 25%;
+        }
+        
+        .comparison-table .standard {
+            background-color: #f0f9ff;
+            width: 37.5%;
+        }
+        
+        .comparison-table .sample {
+            background-color: #fff8f0;
+            width: 37.5%;
+        }
+        
+        .comparison-table .match {
+            color: #0f5132;
+        }
+        
+        .comparison-table .mismatch {
+            color: #842029;
+            font-weight: 600;
+        }
+        
+        .measurement-header {
+            text-align: center;
+            font-weight: 700;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .standard-header {
+            background-color: #e6f3ff;
+            color: #0a58ca;
+        }
+        
+        .sample-header {
+            background-color: #fff3e6;
+            color: #fd7e14;
+        }
+        
+        /* Icon-only button styles */
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 0.25rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-icon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-icon i {
+            font-size: 1.1rem;
+        }
+        
+        .btn-icon-edit {
+            background-color: #cff4fc;
+            color: #055160;
+            border: none;
+        }
+        
+        .btn-icon-edit:hover {
+            background-color: #9eeaf9;
+            color: #055160;
+        }
+        
+        .btn-icon-delete {
+            background-color: #f8d7da;
+            color: #842029;
+            border: none;
+        }
+        
+        .btn-icon-delete:hover {
+            background-color: #f5c2c7;
+            color: #842029;
+        }
+
+        /* Add conformity badge styles */
+        .badge-conformite {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-conforme {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-non-conforme {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .warning-message {
+            background-color: #fff5f5;
+            border-left: 4px solid #ef4444;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: #dc2626;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="detail-header d-sm-flex align-items-center justify-content-between">
+            <div>
+                <h1>Input/Output Record Details</h1>
+                <p class="mt-2">Input/Output Record Details</p>
+                <br/>
+            </div>
+            <div class="d-flex mt-3 mt-sm-0">
+                <a href="{{ path('app_admin_io') }}" class="btn btn-secondary btn-action">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+                {# <a href="{{ path('app_admin_io_edit', {'id': io.id}) }}" class="btn-icon btn-icon-edit" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <button type="button" class="btn-icon btn-icon-delete delete-io-btn" 
+                        data-id="{{ io.id }}" 
+                        data-token="{{ csrf_token('delete' ~ io.id) }}"
+                        title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button> #}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- IO Information Card -->
+            <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold">Input/Output Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th style="width: 30%">Status</th>
+                                            <td>
+                                                <span class="badge badge-status badge-{{ io.status.value|lower }}">
+                                                    {{ io.status.value }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Conformity</th>
+                                            <td>
+                                                <span class="badge badge-conformite badge-{{ io.conformite == 'conforme' ? 'conforme' : 'non-conforme' }}">
+                                                    {% if io.conformite == 'conforme' %}
+                                                        Conforme
+                                                    {% else %}
+                                                        Non Conforme
+                                                    {% endif %}
+                                                </span>
+                                                {% if io.conformite != 'conforme' %}
+                                                    <div class="warning-message mt-2">
+                                                        <i class="fas fa-exclamation-circle"></i>
+                                                        <span>Caution: Non-standard measurements detected</span>
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Date</th>
+                                            <td>{{ io.dateEntre|date('Y-m-d H:i:s') }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th style="width: 30%">Tool</th>
+                                            <td>{{ io.tool.id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>User</th>
+                                            <td>{{ io.user.firstName }} {{ io.user.lastName }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Measurements Comparison Card -->
+            <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold">Measurements Comparison</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="standard-header">Standard Measurements</th>
+                                        <th class="sample-header">Sample Measurements</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="param-name">Section</td>
+                                        <td class="standard text-center">{{ io.measure.section }}</td>
+                                        <td class="sample text-center {{ io.section == io.measure.section ? 'match' : 'mismatch' }}">
+                                            {{ io.section }}
+                                            {% if io.section != io.measure.section %}
+                                                <i class="fas fa-exclamation-circle ms-2" title="Differs from standard"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="param-name">Crimping Height</td>
+                                        <td class="standard text-center">{{ io.measure.crimpingHeight }}</td>
+                                        <td class="sample text-center {{ io.crimpingHeight == io.measure.crimpingHeight ? 'match' : 'mismatch' }}">
+                                            {{ io.crimpingHeight }}
+                                            {% if io.crimpingHeight != io.measure.crimpingHeight %}
+                                                <i class="fas fa-exclamation-circle ms-2" title="Differs from standard"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="param-name">Insulation Height</td>
+                                        <td class="standard text-center">{{ io.measure.insulationHeight }}</td>
+                                        <td class="sample text-center {{ io.insulationHeight == io.measure.insulationHeight ? 'match' : 'mismatch' }}">
+                                            {{ io.insulationHeight }}
+                                            {% if io.insulationHeight != io.measure.insulationHeight %}
+                                                <i class="fas fa-exclamation-circle ms-2" title="Differs from standard"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="param-name">Crimping Width</td>
+                                        <td class="standard text-center">{{ io.measure.crimpingWidth }}</td>
+                                        <td class="sample text-center {{ io.crimpingWidth == io.measure.crimpingWidth ? 'match' : 'mismatch' }}">
+                                            {{ io.crimpingWidth }}
+                                            {% if io.crimpingWidth != io.measure.crimpingWidth %}
+                                                <i class="fas fa-exclamation-circle ms-2" title="Differs from standard"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="param-name">Insulation Width</td>
+                                        <td class="standard text-center">{{ io.measure.insulationWidth }}</td>
+                                        <td class="sample text-center {{ io.insulationWidth == io.measure.insulationWidth ? 'match' : 'mismatch' }}">
+                                            {{ io.insulationWidth }}
+                                            {% if io.insulationWidth != io.measure.insulationWidth %}
+                                                <i class="fas fa-exclamation-circle ms-2" title="Differs from standard"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            // Delete button handler
+            $('.delete-io-btn').on('click', function() {
+                const ioId = $(this).data('id');
+                const token = $(this).data('token');
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You are about to delete this IO record. This action cannot be undone!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Create form for the delete request
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/admin/io/' + ioId;
+                        form.style.display = 'none';
+                        
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = '_token';
+                        tokenInput.value = token;
+                        form.appendChild(tokenInput);
+                        
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %} 

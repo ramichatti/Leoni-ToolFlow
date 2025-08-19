@@ -1,0 +1,665 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Manage Complaints{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .complaints-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .status-filter .btn {
+        border-radius: 50px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .status-filter .btn.active {
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+    }
+    
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .table th {
+        background-color: #f8f9fc;
+        border-top: none;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #5a5a5a;
+        letter-spacing: 0.05em;
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .table td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e3e6f0;
+        color: #5a5a5a;
+        font-size: 0.95rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Table container styles */
+    .table-responsive {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            opacity: 0.7;
+        }
+        50% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(0.95);
+            opacity: 0.7;
+        }
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .user-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #5a5a5a;
+    }
+    
+    .complaint-subject {
+        font-weight: 600;
+        color: #333;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .complaint-excerpt {
+        color: #6c757d;
+        display: block;
+        font-size: 0.85rem;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .status-badge {
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    
+    .badge-pending {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .badge-processing {
+        background-color: #0dcaf0;
+        color: #fff;
+    }
+    
+    .badge-resolved {
+        background-color: #198754;
+        color: #fff;
+    }
+    
+    .badge-rejected {
+        background-color: #dc3545;
+        color: #fff;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0.25rem;
+        margin: 0 0.1rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        border-radius: 8px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        color: #6c757d;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    .action-btn.view-btn:hover {
+        background: #e3f2fd;
+        color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .action-btn.edit-btn:hover {
+        background: #fff8e1;
+        color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .action-btn.delete-btn:hover {
+        background: #ffebee;
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .action-btn i {
+        font-size: 1rem;
+        transition: transform 0.2s;
+    }
+
+    .action-btn:hover i {
+        transform: scale(1.1);
+    }
+    
+    .complaint-row {
+        transition: all 0.2s;
+    }
+    
+    .complaint-row:hover {
+        background-color: rgba(13, 110, 253, 0.03);
+    }
+    
+    .date-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .date-primary {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .date-secondary {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1.5rem;
+    }
+    
+    .dataTables_wrapper .dataTables_length {
+        float: left;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .dataTables_wrapper .dataTables_length label {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: #5a5a5a;
+        margin-bottom: 0;
+    }
+    
+    .dataTables_wrapper .dataTables_length select {
+        margin: 0 0.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem;
+        background-color: #f8f9fc;
+    }
+    
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .dataTables_wrapper .dataTables_filter label {
+        font-weight: 600;
+        color: #5a5a5a;
+        display: flex;
+        align-items: center;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input {
+        margin-left: 0.75rem;
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        font-size: 0.95rem;
+        width: 300px;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+        color: #334155;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: 0;
+        background-color: #fff;
+    }
+    
+    .dataTables_wrapper .dataTables_filter::before {
+        content: '\f002';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        right: 225px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+        z-index: 1;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+        outline: 0;
+    }
+    
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 1rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate {
+        float: right;
+        text-align: right;
+        padding-top: 1.25rem;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.375rem 0.75rem;
+        margin-left: 0.25rem;
+        border-radius: 0.5rem;
+        background: #f8f9fc;
+        border: 1px solid #dee2e6;
+        color: #5a5a5a !important;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #e9ecef;
+        border-color: #dee2e6;
+        color: #0d6efd !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #f8f9fc;
+        border-color: #dee2e6;
+        color: #5a5a5a !important;
+        font-weight: 600;
+    }
+    
+    .dataTables_wrapper .dataTables_info {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-top: 1.5rem;
+    }
+    
+    .stats-row {
+        margin-bottom: 2rem;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+    
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .stat-card {
+        width: 100%;
+        border-radius: 1rem;
+        border: none;
+        overflow: hidden;
+        transition: all 0.3s;
+        background: #fff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card-pending {
+        background: linear-gradient(145deg, #fff, #fff8e1);
+        border-bottom: 4px solid #ffc107;
+    }
+    
+    .stat-card-processing {
+        background: linear-gradient(145deg, #fff, #e3f2fd);
+        border-bottom: 4px solid #0dcaf0;
+    }
+    
+    .stat-card-resolved {
+        background: linear-gradient(145deg, #fff, #e8f5e9);
+        border-bottom: 4px solid #198754;
+    }
+    
+    .stat-card-rejected {
+        background: linear-gradient(145deg, #fff, #ffebee);
+        border-bottom: 4px solid #dc3545;
+    }
+    
+    .stat-card .card-body {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-right: 1rem;
+        background: linear-gradient(45deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .stat-card-pending .stat-icon {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #ffc107;
+    }
+    
+    .stat-card-processing .stat-icon {
+        background-color: rgba(13, 202, 240, 0.15);
+        color: #0dcaf0;
+    }
+    
+    .stat-card-resolved .stat-icon {
+        background-color: rgba(25, 135, 84, 0.15);
+        color: #198754;
+    }
+    
+    .stat-card-rejected .stat-icon {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+    }
+    
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, #2b2b2b, #1a1a1a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 mb-2 font-weight-bold" style="color: #2c3e50;">Manage Complaints</h1>
+                <p class="mb-0" style="color: #7f8c8d; font-size: 1.1rem;">Review and process user submitted complaints</p>
+            </div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 bg-transparent">
+                    <li class="breadcrumb-item"><a href="{{ path('app_admin_dashboard') }}" style="color: #3498db; text-decoration: none;">Dashboard</a></li>
+                    <li class="breadcrumb-item active" style="color: #7f8c8d;" aria-current="page">Complaints</li>
+                </ol>
+            </nav>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+    <div class="card shadow-lg mb-4" style="border-radius: 15px; border: none;">
+            <div class="card-body p-4">
+                {% if complaints|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="complaintsTable" width="100%" cellspacing="0" style="margin-bottom: 0;">
+                        <thead>
+                            <tr>
+                                {# <th style="width: 5%; font-weight: 700; text-transform: uppercase; color: #495057;">ID</th> #}
+                                <th>Subject</th>
+                                <th>User</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for complaint in complaints %}
+                                <tr class="complaint-row" style="transition: background 0.2s;">
+                                    {# <td><code>{{ complaint.id }}</code></td> #}
+                                        <td>
+                                        <span class="complaint-subject" style="font-weight: 600; color: #212529;">{{ complaint.subject }}</span>
+                                        <span class="complaint-excerpt" style="color: #6c757d; font-size: 0.9rem;">{{ complaint.description|striptags|slice(0, 100) }}{% if complaint.description|length > 100 %}...{% endif %}</span>
+                                        </td>
+                                        <td>
+                                            <div class="user-info">
+                                            <div class="user-avatar" style="background: #e9ecef; color: #495057; font-weight: 700;">
+                                                    {{ complaint.user.firstName|first }}{{ complaint.user.lastName|first }}
+                                                </div>
+                                                <div>
+                                                <span class="d-block" style="font-weight: 500;">{{ complaint.user.firstName }} {{ complaint.user.lastName }}</span>
+                                                <small class="text-muted">ID: {{ complaint.user.id }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="date-info">
+                                            <span class="date-primary" style="font-weight: 600; color: #333;">{{ complaint.createdAt|date('Y-m-d H:i') }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                        <span class="badge"
+                                            style="
+                                                font-size: 0.95rem; font-weight: 600; padding: 0.5em 1em; border-radius: 1em;
+                                                {% if complaint.status.value == 'PENDING' %}background-color: #ffc107; color: #212529;
+                                                {% elseif complaint.status.value == 'PROCESSING' %}background-color: #0dcaf0; color: #fff;
+                                                {% elseif complaint.status.value == 'RESOLVED' %}background-color: #198754; color: #fff;
+                                                {% elseif complaint.status.value == 'REJECTED' %}background-color: #dc3545; color: #fff;
+                                                {% else %}background-color: #adb5bd; color: #fff;{% endif %}">
+                                            {{ complaint.status.value|capitalize }}
+                                                </span>
+                                        </td>
+                                        <td>
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <a href="{{ path('app_admin_complaint_show', {'id': complaint.id}) }}" class="btn btn-sm btn-outline-primary" title="View details" style="border-radius: 0.5rem;">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            <a href="{{ path('app_admin_complaint_edit', {'id': complaint.id}) }}" class="btn btn-sm btn-outline-warning" title="Edit & Response" style="border-radius: 0.5rem;">
+                                                    <i class="fas fa-reply"></i>
+                                                </a>
+                                            <form id="delete-form-{{ complaint.id }}" method="post" action="{{ path('app_admin_complaint_delete', {'id': complaint.id}) }}" style="display: inline-block;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ complaint.id) }}">
+                                                <button type="button" class="btn btn-sm btn-outline-danger delete-complaint-btn" title="Delete complaint" data-id="{{ complaint.id }}" data-token="{{ csrf_token('delete' ~ complaint.id) }}" style="border-radius: 0.5rem;">
+                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                    <i class="fas fa-comment-slash" style="font-size: 3rem; color: #dee2e6;"></i>
+                    <h5 style="color: #6c757d; font-weight: 600;">No Complaints Found</h5>
+                    <p style="color: #adb5bd;">There are no complaints in the system yet.</p>
+                    </div>
+                {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable with same style as tools page
+        $('#complaintsTable').DataTable({
+            "order": [[3, "desc"]], // Order by date column (descending)
+            "pageLength": 5,
+            "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+            "language": {
+                "search": "Search complaints :",
+                "lengthMenu": "Show _MENU_ complaints per page",
+                "info": "Showing _START_ to _END_ of _TOTAL_ complaints",
+                "infoEmpty": "No complaints available",
+                "infoFiltered": "(filtered from _MAX_ total complaints)",
+                "zeroRecords": "No matching complaints found"
+            },
+            "dom": '<"top"lf>rt<"bottom"ip>',
+            "drawCallback": function() {
+                attachDeleteEvents();
+            }
+        });
+
+        // Function to attach delete events
+        function attachDeleteEvents() {
+            $(document).off('click', '.delete-complaint-btn').on('click', '.delete-complaint-btn', function() {
+                const complaintId = $(this).data('id');
+                const token = $(this).data('token');
+                Swal.fire({
+                    title: 'Confirm Deletion',
+                    html: `Are you sure you want to delete this complaint?<br>This action cannot be undone.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Please wait while we process your request.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        document.getElementById(`delete-form-${complaintId}`).submit();
+                    }
+                });
+            });
+        }
+        attachDeleteEvents();
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/login.css') }}">
+    <style>
+        form {
+            width: 400px;
+        }
+        .floating-label input {
+            width: calc(100% - 44px);
+        }
+        .form-check {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .form-check-input {
+            height: auto;
+            width: auto;
+            margin-right: 10px;
+        }
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .form-error {
+            color: #721c24;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="session">
+    <div class="left" style="background-color: white; padding: 10px;">
+        <img src="{{ asset('images/Logo.png') }}" alt="Leoni Logo">
+    </div>
+    
+    {{ form_start(registrationForm, {'attr': {'class': 'log-in', 'autocomplete': 'off'}}) }}
+        <h4>Join <span>Leoni</span></h4>
+        <p>Create your account to get started.</p>
+
+        <div class="floating-label">
+            {{ form_widget(registrationForm.id, {'attr': {'placeholder': 'ID (Unique Identifier)'}}) }}
+            <label for="{{ registrationForm.id.vars.id }}">ID (Unique Identifier)</label>
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                </svg>
+            </div>
+            {{ form_errors(registrationForm.id) }}
+        </div>
+
+        <div class="floating-label">
+            {{ form_widget(registrationForm.firstName, {'attr': {'placeholder': 'First Name'}}) }}
+            <label for="{{ registrationForm.firstName.vars.id }}">First Name</label>
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4zm6 5H6v-.99c.2-.72 3.3-2.01 6-2.01s5.8 1.29 6 2v1z"/>
+                </svg>
+            </div>
+            {{ form_errors(registrationForm.firstName) }}
+        </div>
+
+        <div class="floating-label">
+            {{ form_widget(registrationForm.lastName, {'attr': {'placeholder': 'Last Name'}}) }}
+            <label for="{{ registrationForm.lastName.vars.id }}">Last Name</label>
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4zm6 5H6v-.99c.2-.72 3.3-2.01 6-2.01s5.8 1.29 6 2v1z"/>
+                </svg>
+            </div>
+            {{ form_errors(registrationForm.lastName) }}
+        </div>
+
+        <div class="floating-label">
+            {{ form_widget(registrationForm.email, {'attr': {'placeholder': 'Email'}}) }}
+            <label for="{{ registrationForm.email.vars.id }}">Email</label>
+            <div class="icon">
+                <svg enable-background="new 0 0 100 100" version="1.1" viewBox="0 0 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(0 -952.36)">
+                        <path d="m17.5 977c-1.3 0-2.4 1.1-2.4 2.4v45.9c0 1.3 1.1 2.4 2.4 2.4h64.9c1.3 0 2.4-1.1 2.4-2.4v-45.9c0-1.3-1.1-2.4-2.4-2.4h-64.9zm2.4 4.8h60.2v1.2l-30.1 22-30.1-22v-1.2zm0 7l28.7 21c0.8 0.6 2 0.6 2.8 0l28.7-21v34.1h-60.2v-34.1z"/>
+                    </g>
+                </svg>
+            </div>
+            {{ form_errors(registrationForm.email) }}
+        </div>
+
+        <div class="floating-label">
+            {{ form_widget(registrationForm.tel, {'attr': {'placeholder': 'Phone Number'}}) }}
+            <label for="{{ registrationForm.tel.vars.id }}">Phone Number</label>
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                </svg>
+            </div>
+            {{ form_errors(registrationForm.tel) }}
+        </div>
+
+        <div class="floating-label">
+            {{ form_widget(registrationForm.address, {'attr': {'placeholder': 'Address'}}) }}
+            <label for="{{ registrationForm.address.vars.id }}">Address</label>
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+            </div>
+            {{ form_errors(registrationForm.address) }}
+        </div>
+
+        <div class="floating-label">
+            {{ form_widget(registrationForm.plainPassword.first, {'attr': {'placeholder': 'Password'}}) }}
+            <label for="{{ registrationForm.plainPassword.first.vars.id }}">Password</label>
+            <div class="icon">
+                <svg enable-background="new 0 0 24 24" version="1.1" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+                    <rect class="st0" width="24" height="24"/>
+                    <path class="st1" d="M19,21H5V9h14V21z M6,20h12V10H6V20z"/>
+                    <path class="st1" d="M16.5,10h-1V7c0-1.9-1.6-3.5-3.5-3.5S8.5,5.1,8.5,7v3h-1V7c0-2.5,2-4.5,4.5-4.5s4.5,2,4.5,4.5V10z"/>
+                    <path class="st1" d="m12 16.5c-0.8 0-1.5-0.7-1.5-1.5s0.7-1.5 1.5-1.5 1.5 0.7 1.5 1.5-0.7 1.5-1.5 1.5zm0-2c-0.3 0-0.5 0.2-0.5 0.5s0.2 0.5 0.5 0.5 0.5-0.2 0.5-0.5-0.2-0.5-0.5-0.5z"/>
+                </svg>
+            </div>
+            {{ form_errors(registrationForm.plainPassword.first) }}
+        </div>
+
+        <div class="floating-label">
+            {{ form_widget(registrationForm.plainPassword.second, {'attr': {'placeholder': 'Repeat Password'}}) }}
+            <label for="{{ registrationForm.plainPassword.second.vars.id }}">Repeat Password</label>
+            <div class="icon">
+                <svg enable-background="new 0 0 24 24" version="1.1" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+                    <rect class="st0" width="24" height="24"/>
+                    <path class="st1" d="M19,21H5V9h14V21z M6,20h12V10H6V20z"/>
+                    <path class="st1" d="M16.5,10h-1V7c0-1.9-1.6-3.5-3.5-3.5S8.5,5.1,8.5,7v3h-1V7c0-2.5,2-4.5,4.5-4.5s4.5,2,4.5,4.5V10z"/>
+                    <path class="st1" d="m12 16.5c-0.8 0-1.5-0.7-1.5-1.5s0.7-1.5 1.5-1.5 1.5 0.7 1.5 1.5-0.7 1.5-1.5 1.5zm0-2c-0.3 0-0.5 0.2-0.5 0.5s0.2 0.5 0.5 0.5 0.5-0.2 0.5-0.5-0.2-0.5-0.5-0.5z"/>
+                </svg>
+            </div>
+            {{ form_errors(registrationForm.plainPassword.second) }}
+        </div>
+
+        <div class="form-check">
+            {{ form_widget(registrationForm.agreeTerms) }}
+            {{ form_label(registrationForm.agreeTerms) }}
+            {{ form_errors(registrationForm.agreeTerms) }}
+        </div>
+
+        <button type="submit">Register</button>
+        
+        <div class="register-link" style="margin-top: 20px; text-align: center; width: 100%;">
+            <p>Already have an account? <a href="{{ path('app_login') }}" style="color: var(--primary-color-saturated); text-decoration: none;">Login here</a></p>
+        </div>
+    {{ form_end(registrationForm) }}
+</div>
+{% endblock %} 

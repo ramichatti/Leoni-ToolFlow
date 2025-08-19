@@ -1,0 +1,577 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Complaint Details{% endblock %}
+
+{% block body %}
+    {% include 'navbar.html.twig' %}
+    
+    <div class="container mt-5 pt-5">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_complaints') }}" class="text-decoration-none">My Complaints</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Complaint #{{ complaint.id }}</li>
+                    </ol>
+                </nav>
+                <h1 class="page-title">{{ complaint.subject }}</h1>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{{ path('app_complaints') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Complaints
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-info-circle me-2"></i> Complaint Information
+                        </h5>
+                        <span class="status-badge status-badge-lg {% if complaint.status.value == 'PENDING' %}badge-pending{% elseif complaint.status.value == 'PROCESSING' %}badge-processing{% elseif complaint.status.value == 'RESOLVED' %}badge-resolved{% else %}badge-rejected{% endif %}">
+                            {% if complaint.status.value == 'PENDING' %}
+                                <i class="fas fa-clock me-1"></i> Pending
+                            {% elseif complaint.status.value == 'PROCESSING' %}
+                                <i class="fas fa-spinner fa-spin me-1"></i> Processing
+                            {% elseif complaint.status.value == 'RESOLVED' %}
+                                <i class="fas fa-check-circle me-1"></i> Resolved
+                            {% elseif complaint.status.value == 'REJECTED' %}
+                                <i class="fas fa-times-circle me-1"></i> Rejected
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="complaint-meta mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="meta-item">
+                                        <div class="meta-icon">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </div>
+                                        <div class="meta-content">
+                                            <span class="meta-label">Submitted on</span>
+                                            <span class="meta-value">{{ complaint.createdAt|date('d/m/Y H:i') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="meta-item">
+                                        <div class="meta-icon">
+                                            <i class="fas fa-tag"></i>
+                                        </div>
+                                        <div class="meta-content">
+                                            <span class="meta-label">Reference ID</span>
+                                            <span class="meta-value">#{{ complaint.id }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="complaint-content">
+                            <h6 class="content-title">Description</h6>
+                            <div class="content-box mb-4">
+                                {{ complaint.description|nl2br }}
+                            </div>
+                        </div>
+                        
+                        {% if complaint.adminResponse %}
+                            <div class="admin-response">
+                                <h6 class="content-title">Response from Admin</h6>
+                                <div class="content-box admin-response-content">
+                                    <div class="response-header mb-3">
+                                        <div class="admin-avatar">
+                                            <i class="fas fa-user-shield"></i>
+                                        </div>
+                                        <div class="response-meta">
+                                            <span class="admin-label">Admin Response</span>
+                                            <span class="response-date">
+                                                <i class="fas fa-clock me-1"></i>
+                                                {% if complaint.updatedAt %}
+                                                    {{ complaint.updatedAt|date('d/m/Y H:i') }}
+                                                {% else %}
+                                                    {{ complaint.createdAt|date('d/m/Y H:i') }}
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="response-content">
+                                        {{ complaint.adminResponse|nl2br }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-question-circle me-2"></i> Need More Help?
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p>If you need further assistance with this complaint or have additional information to provide, you can submit a new complaint or contact our support team directly.</p>
+                        <div class="d-flex gap-3 mt-4">
+                            <a href="{{ path('app_complaint_new') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i> New Complaint
+                            </a>
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fas fa-headset me-2"></i> Contact Support
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow mb-4 status-card {% if complaint.status.value == 'PENDING' %}status-card-pending{% elseif complaint.status.value == 'PROCESSING' %}status-card-processing{% elseif complaint.status.value == 'RESOLVED' %}status-card-resolved{% else %}status-card-rejected{% endif %}">
+                    <div class="card-body">
+                        <div class="status-info">
+                            <div class="status-icon">
+                                {% if complaint.status.value == 'PENDING' %}
+                                    <i class="fas fa-clock"></i>
+                                {% elseif complaint.status.value == 'PROCESSING' %}
+                                    <i class="fas fa-cog fa-spin"></i>
+                                {% elseif complaint.status.value == 'RESOLVED' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elseif complaint.status.value == 'REJECTED' %}
+                                    <i class="fas fa-times-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="status-details">
+                                <h6 class="status-title">
+                                    {% if complaint.status.value == 'PENDING' %}
+                                        Pending Review
+                                    {% elseif complaint.status.value == 'PROCESSING' %}
+                                        Being Processed
+                                    {% elseif complaint.status.value == 'RESOLVED' %}
+                                        Resolved
+                                    {% elseif complaint.status.value == 'REJECTED' %}
+                                        Rejected
+                                    {% endif %}
+                                </h6>
+                                <p class="status-description">
+                                    {% if complaint.status.value == 'PENDING' %}
+                                        Your complaint is waiting to be reviewed by our team.
+                                    {% elseif complaint.status.value == 'PROCESSING' %}
+                                        Our team is currently working on your complaint.
+                                    {% elseif complaint.status.value == 'RESOLVED' %}
+                                        Your complaint has been resolved successfully.
+                                    {% elseif complaint.status.value == 'REJECTED' %}
+                                        Your complaint has been reviewed and cannot be processed.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-history me-2"></i> Status Timeline
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">Complaint Submitted</h6>
+                                    <p class="timeline-date">{{ complaint.createdAt|date('d/m/Y H:i') }}</p>
+                                </div>
+                            </div>
+                            
+                            {% if complaint.status.value != 'PENDING' %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker {% if complaint.status.value == 'PROCESSING' %}bg-info{% elseif complaint.status.value == 'RESOLVED' %}bg-success{% else %}bg-danger{% endif %}"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Status Updated to {{ complaint.status.value|capitalize }}</h6>
+                                        <p class="timeline-date">
+                                            {% if complaint.updatedAt %}
+                                                {{ complaint.updatedAt|date('d/m/Y H:i') }}
+                                            {% else %}
+                                                {{ complaint.createdAt|date('d/m/Y H:i') }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if complaint.adminResponse %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-primary"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Admin Response Added</h6>
+                                        <p class="timeline-date">
+                                            {% if complaint.updatedAt %}
+                                                {{ complaint.updatedAt|date('d/m/Y H:i') }}
+                                            {% else %}
+                                                {{ complaint.createdAt|date('d/m/Y H:i') }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-lightbulb me-2"></i> What's Next?
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="next-steps">
+                            {% if complaint.status.value == 'PENDING' %}
+                                <li class="next-step-item">
+                                    <div class="step-icon"><i class="fas fa-hourglass-half"></i></div>
+                                    <div class="step-content">Wait for our team to review your complaint</div>
+                                </li>
+                                <li class="next-step-item">
+                                    <div class="step-icon"><i class="fas fa-envelope"></i></div>
+                                    <div class="step-content">You'll receive a notification when there's an update</div>
+                                </li>
+                            {% elseif complaint.status.value == 'PROCESSING' %}
+                                <li class="next-step-item">
+                                    <div class="step-icon"><i class="fas fa-cogs"></i></div>
+                                    <div class="step-content">Our team is working on resolving your issue</div>
+                                </li>
+                                <li class="next-step-item">
+                                    <div class="step-icon"><i class="fas fa-comments"></i></div>
+                                    <div class="step-content">You may be contacted for additional information</div>
+                                </li>
+                            {% elseif complaint.status.value == 'RESOLVED' %}
+                                <li class="next-step-item">
+                                    <div class="step-icon"><i class="fas fa-check-double"></i></div>
+                                    <div class="step-content">Your complaint has been successfully resolved</div>
+                                </li>
+                                <li class="next-step-item">
+                                    <div class="step-icon"><i class="fas fa-star"></i></div>
+                                    <div class="step-content">If you're satisfied, no further action is needed</div>
+                                </li>
+                            {% elseif complaint.status.value == 'REJECTED' %}
+                                <li class="next-step-item">
+                                    <div class="step-icon"><i class="fas fa-info-circle"></i></div>
+                                    <div class="step-content">Review the admin's response for details</div>
+                                </li>
+                                <li class="next-step-item">
+                                    <div class="step-icon"><i class="fas fa-file-alt"></i></div>
+                                    <div class="step-content">You can submit a new complaint if needed</div>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .page-title {
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+        }
+        
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .breadcrumb-item a {
+            color: #0d6efd;
+        }
+        
+        .complaint-meta {
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            padding-bottom: 1.5rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meta-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #0d6efd;
+            flex-shrink: 0;
+        }
+        
+        .meta-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .meta-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 0.2rem;
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .content-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .content-box {
+            background-color: #f8f9fc;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(0,0,0,0.08);
+            line-height: 1.6;
+        }
+        
+        .admin-response-content {
+            border-left: 4px solid #0d6efd;
+        }
+        
+        .response-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .admin-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #0d6efd;
+        }
+        
+        .response-meta {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .admin-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .response-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .status-badge {
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .status-badge-lg {
+            font-size: 0.9rem;
+            padding: 0.6rem 1rem;
+        }
+        
+        .badge-pending {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .badge-processing {
+            background-color: #0dcaf0;
+            color: #fff;
+        }
+        
+        .badge-resolved {
+            background-color: #198754;
+            color: #fff;
+        }
+        
+        .badge-rejected {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        
+        .status-card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: none;
+        }
+        
+        .status-card-pending {
+            border-top: 4px solid #ffc107;
+        }
+        
+        .status-card-processing {
+            border-top: 4px solid #0dcaf0;
+        }
+        
+        .status-card-resolved {
+            border-top: 4px solid #198754;
+        }
+        
+        .status-card-rejected {
+            border-top: 4px solid #dc3545;
+        }
+        
+        .status-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .status-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .status-card-pending .status-icon {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+        
+        .status-card-processing .status-icon {
+            background-color: rgba(13, 202, 240, 0.1);
+            color: #0dcaf0;
+        }
+        
+        .status-card-resolved .status-icon {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: #198754;
+        }
+        
+        .status-card-rejected .status-icon {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+        
+        .status-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .status-description {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 0.65rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -2rem;
+            width: 1.3rem;
+            height: 1.3rem;
+            border-radius: 50%;
+            top: 0;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-content {
+            padding-left: 0.5rem;
+        }
+        
+        .timeline-title {
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .timeline-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+        
+        .next-steps {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .next-step-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .next-step-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .step-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #0d6efd;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            font-size: 0.95rem;
+            color: #333;
+        }
+    </style>
+{% endblock %} 

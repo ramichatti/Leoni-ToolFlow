@@ -1,0 +1,635 @@
+{% extends 'base_back.html.twig' %}
+
+{# {% if is_granted('ROLE_ADMIN')%}
+    {% extends 'base_back.html.twig' %}
+{% else %}
+    {% extends 'navbar.html.twig' %}
+{% endif %}  #}
+
+{% block title %}User Profile{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .profile-card {
+        margin-bottom: 2rem;
+    }
+    .profile-header {
+        background-color: #f8f9fc;
+        padding: 1.5rem;
+        border-radius: 0.35rem;
+        margin-bottom: 2rem;
+    }
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border-radius: 0.35rem;
+        background-color: white;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+    .avatar-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        background-color: #e9ecef;
+        color: #5a5a5a;
+    }
+    .form-control:focus {
+        border-color: #5a5a5a;
+        box-shadow: 0 0 0 0.25rem rgba(90, 90, 90, 0.25);
+    }
+    .btn-primary {
+        background-color: #5a5a5a;
+        border-color: #5a5a5a;
+    }
+    .btn-primary:hover {
+        background-color: #3a3a3a;
+        border-color: #3a3a3a;
+    }
+    .form-floating label {
+        color: #6c757d;
+    }
+    .form-floating > .form-control:focus ~ label {
+        color: #5a5a5a;
+    }
+    .password-strength {
+        height: 5px;
+        margin-top: 5px;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+    .password-feedback {
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+    .invalid-feedback {
+        display: block;
+    }
+    .user-info-item {
+        padding: 0.75rem;
+        border-radius: 0.35rem;
+        margin-bottom: 0.5rem;
+        background-color: #f8f9fc;
+    }
+    .user-info-label {
+        font-weight: 600;
+        color: #5a5a5a;
+        margin-bottom: 0.25rem;
+    }
+    .user-info-value {
+        color: #3a3a3a;
+    }
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1090;
+    }
+    .form-processing {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    
+    /* SweetAlert2 Custom Styles */
+    .swal2-popup {
+        font-size: 0.9rem;
+        border-radius: 0.75rem;
+    }
+    
+    .swal2-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .swal2-content {
+        font-size: 1rem;
+    }
+    
+    .swal2-actions button {
+        font-weight: 600;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    /* AJAX Notification Styles */
+    .ajax-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.3s ease;
+    }
+    
+    .ajax-notification.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .ajax-notification.success {
+        background-color: #d1e7dd;
+        color: #0f5132;
+        border-left: 4px solid #0f5132;
+    }
+    
+    .ajax-notification.error {
+        background-color: #f8d7da;
+        color: #842029;
+        border-left: 4px solid #842029;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="profile-header">
+        <h1 class="h3 mb-0 text-gray-800">My Profile</h1>
+        <p class="mb-0">View and update your profile information</p>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card profile-card">
+                <div class="card-body text-center">
+                    <div class="avatar-circle">
+                        {{ app.user.firstName|slice(0, 1)|upper }}{{ app.user.lastName|slice(0, 1)|upper }}
+                    </div>
+                    <h5 class="mb-3">{{ app.user.firstName }} {{ app.user.lastName }}</h5>
+                    <p class="text-muted mb-1">{{ app.user.role.value|replace({'ROLE_': ''}) }}</p>
+                    <hr>
+                    <div class="user-info-item text-start">
+                        <div class="user-info-label">Identifiant</div>
+                        <div class="user-info-value" id="display-id">{{ app.user.id }}</div>
+                    </div>
+                    <div class="user-info-item text-start">
+                        <div class="user-info-label">Email</div>
+                        <div class="user-info-value" id="display-email">{{ app.user.email }}</div>
+                    </div>
+                    <div class="user-info-item text-start">
+                        <div class="user-info-label">Phone</div>
+                        <div class="user-info-value" id="display-tel">{{ app.user.tel ? app.user.tel : 'Not provided' }}</div>
+                    </div>
+                    <div class="user-info-item text-start">
+                        <div class="user-info-label">Address</div>
+                        <div class="user-info-value" id="display-address">{{ app.user.address ? app.user.address : 'Not provided' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="form-section">
+                <h5 class="mb-4">Update Contact Information</h5>
+                <form id="contactForm" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('profile_contact') }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="tel" id="profile_contact_tel" name="profile_contact_tel" class="form-control" placeholder="Phone Number" 
+                                    value="{{ app.user.tel }}" pattern="[0-9]{8,15}" title="Phone number should be between 8 and 15 digits">
+                                <label for="profile_contact_tel">Phone Number</label>
+                                <div class="validation-message invalid-feedback" id="tel-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="text" id="profile_contact_address" name="profile_contact_address" class="form-control" placeholder="Address" 
+                                    value="{{ app.user.address }}">
+                                <label for="profile_contact_address">Address</label>
+                                <div class="validation-message invalid-feedback" id="address-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" id="contactSubmitBtn" class="btn btn-primary">
+                            Update Contact Info
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h5 class="mb-4">Change Password</h5>
+                <form id="passwordForm" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('change_password') }}">
+                    <div class="form-floating mb-3">
+                        <input type="password" id="change_password_currentPassword" name="change_password_currentPassword" class="form-control" placeholder="Current Password" required>
+                        <label for="change_password_currentPassword">Current Password</label>
+                        <div class="validation-message invalid-feedback" id="current-password-feedback"></div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" id="change_password_newPassword_first" name="change_password_newPassword_first" class="form-control password-input" placeholder="New Password" data-password-field="true" required>
+                        <label for="change_password_newPassword_first">New Password</label>
+                        <div class="password-strength"></div>
+                        <div class="password-feedback text-muted"></div>
+                        <div class="validation-message invalid-feedback" id="new-password-feedback"></div>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" id="change_password_newPassword_second" name="change_password_newPassword_second" class="form-control" placeholder="Confirm New Password" required>
+                        <label for="change_password_newPassword_second">Confirm New Password</label>
+                        <div class="validation-message invalid-feedback" id="confirm-password-feedback"></div>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" id="passwordSubmitBtn" class="btn btn-primary">
+                            Change Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password strength checker
+        const passwordField = document.querySelector('[data-password-field="true"]');
+        const strengthBar = document.querySelector('.password-strength');
+        const feedbackElement = document.querySelector('.password-feedback');
+        
+        if (passwordField) {
+            passwordField.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                let feedback = '';
+                
+                // Length check
+                if (password.length >= 8) {
+                    strength += 25;
+                } else {
+                    feedback = 'Password should be at least 8 characters long';
+                }
+                
+                // Contains lowercase
+                if (password.match(/[a-z]+/)) {
+                    strength += 25;
+                } else if (password.length > 0) {
+                    feedback = feedback || 'Add lowercase letters';
+                }
+                
+                // Contains uppercase
+                if (password.match(/[A-Z]+/)) {
+                    strength += 25;
+                } else if (password.length > 0) {
+                    feedback = feedback || 'Add uppercase letters';
+                }
+                
+                // Contains number or special char
+                if (password.match(/[0-9]+/) || password.match(/[$@#&!]+/)) {
+                    strength += 25;
+                } else if (password.length > 0) {
+                    feedback = feedback || 'Add numbers or special characters';
+                }
+                
+                // Update UI
+                strengthBar.style.width = strength + '%';
+                
+                // Color based on strength
+                if (strength < 25) {
+                    strengthBar.style.backgroundColor = '#dc3545'; // Weak
+                    feedbackElement.style.color = '#dc3545';
+                } else if (strength < 50) {
+                    strengthBar.style.backgroundColor = '#ffc107'; // Fair
+                    feedbackElement.style.color = '#ffc107';
+                } else if (strength < 75) {
+                    strengthBar.style.backgroundColor = '#0dcaf0'; // Good
+                    feedbackElement.style.color = '#0dcaf0';
+                } else {
+                    strengthBar.style.backgroundColor = '#198754'; // Strong
+                    feedbackElement.style.color = '#198754';
+                    feedback = 'Strong password';
+                }
+                
+                feedbackElement.textContent = feedback;
+            });
+        }
+
+        // Helper function to handle AJAX responses
+        function handleAjaxResponse(response) {
+            // Check if response is ok (status in the range 200-299)
+            if (!response.ok) {
+                // Try to parse as JSON first
+                return response.text().then(text => {
+                    try {
+                        // Try to parse as JSON
+                        return Promise.reject(JSON.parse(text));
+                    } catch (e) {
+                        // If it's not JSON, it's probably HTML or text
+                        return Promise.reject({
+                            success: false,
+                            message: 'Server error. Please try again later.',
+                            originalError: text.substring(0, 100) // Just get a snippet for debugging
+                        });
+                    }
+                });
+            }
+            
+            // If response is ok, parse as JSON
+            return response.json();
+        }
+
+        // Contact form submission
+        const contactForm = document.getElementById('contactForm');
+        const contactSubmitBtn = document.getElementById('contactSubmitBtn');
+        
+        contactSubmitBtn.addEventListener('click', function() {
+            // Basic client-side validation
+            const telInput = document.getElementById('profile_contact_tel');
+            const telFeedback = document.getElementById('tel-feedback');
+            let isValid = true;
+            
+            // Validate phone number
+            if (telInput.value && !telInput.value.match(/^[0-9]{8,15}$/)) {
+                telInput.classList.add('is-invalid');
+                telFeedback.textContent = 'Phone number should contain only digits and be between 8 and 15 characters long';
+                isValid = false;
+            } else {
+                telInput.classList.remove('is-invalid');
+                telFeedback.textContent = '';
+            }
+            
+            if (isValid) {
+                // Show SweetAlert2 confirmation
+                Swal.fire({
+                    title: 'Confirm Update',
+                    html: `Are you sure you want to update your contact information?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5a5a5a',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, update',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading state
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Please wait while we update your information.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                                
+                                // Get form data
+                                const formData = new FormData(contactForm);
+                                
+                                // Send AJAX request
+                                fetch('{{ path('app_profile_update_contact') }}', {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(handleAjaxResponse)
+                                .then(data => {
+                                    if (data.success) {
+                                        // Show success message
+                                        Swal.fire({
+                                            title: 'Success!',
+                                            text: data.message,
+                                            icon: 'success',
+                                            confirmButtonColor: '#5a5a5a'
+                                        });
+                                        
+                                        // Update display values
+                                        const telDisplay = document.getElementById('display-tel');
+                                        const addressDisplay = document.getElementById('display-address');
+                                        
+                                        telDisplay.textContent = data.tel || 'Not provided';
+                                        addressDisplay.textContent = data.address || 'Not provided';
+                                    } else {
+                                        // Show error message
+                                        Swal.fire({
+                                            title: 'Error!',
+                                            text: data.message,
+                                            icon: 'error',
+                                            confirmButtonColor: '#5a5a5a'
+                                        });
+                                        
+                                        // Show validation errors
+                                        if (data.errors && data.errors.tel) {
+                                            const telInput = document.getElementById('profile_contact_tel');
+                                            const telFeedback = document.getElementById('tel-feedback');
+                                            telInput.classList.add('is-invalid');
+                                            telFeedback.textContent = data.errors.tel;
+                                        }
+                                        
+                                        if (data.errors && data.errors.address) {
+                                            const addressInput = document.getElementById('profile_contact_address');
+                                            const addressFeedback = document.getElementById('address-feedback');
+                                            addressInput.classList.add('is-invalid');
+                                            addressFeedback.textContent = data.errors.address;
+                                        }
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    let errorMessage = 'An unexpected error occurred. Please try again.';
+                                    if (error && error.message) {
+                                        errorMessage = error.message;
+                                    }
+                                    
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: errorMessage,
+                                        icon: 'error',
+                                        confirmButtonColor: '#5a5a5a'
+                                    });
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        
+        // Password form submission
+        const passwordForm = document.getElementById('passwordForm');
+        const passwordSubmitBtn = document.getElementById('passwordSubmitBtn');
+        
+        passwordSubmitBtn.addEventListener('click', function() {
+            // Basic client-side validation
+            const currentPasswordInput = document.getElementById('change_password_currentPassword');
+            const newPasswordInput = document.getElementById('change_password_newPassword_first');
+            const confirmPasswordInput = document.getElementById('change_password_newPassword_second');
+            
+            const currentPasswordFeedback = document.getElementById('current-password-feedback');
+            const newPasswordFeedback = document.getElementById('new-password-feedback');
+            const confirmPasswordFeedback = document.getElementById('confirm-password-feedback');
+            
+            let isValid = true;
+            
+            // Validate current password
+            if (!currentPasswordInput.value) {
+                currentPasswordInput.classList.add('is-invalid');
+                currentPasswordFeedback.textContent = 'Please enter your current password';
+                isValid = false;
+            } else {
+                currentPasswordInput.classList.remove('is-invalid');
+                currentPasswordFeedback.textContent = '';
+            }
+            
+            // Validate new password
+            if (!newPasswordInput.value) {
+                newPasswordInput.classList.add('is-invalid');
+                newPasswordFeedback.textContent = 'Please enter a new password';
+                isValid = false;
+            } else if (newPasswordInput.value.length < 8) {
+                newPasswordInput.classList.add('is-invalid');
+                newPasswordFeedback.textContent = 'Password should be at least 8 characters long';
+                isValid = false;
+            } else if (!newPasswordInput.value.match(/[a-z]+/)) {
+                newPasswordInput.classList.add('is-invalid');
+                newPasswordFeedback.textContent = 'Password should contain at least one lowercase letter';
+                isValid = false;
+            } else if (!newPasswordInput.value.match(/[A-Z]+/)) {
+                newPasswordInput.classList.add('is-invalid');
+                newPasswordFeedback.textContent = 'Password should contain at least one uppercase letter';
+                isValid = false;
+            } else if (!newPasswordInput.value.match(/[0-9]+/)) {
+                newPasswordInput.classList.add('is-invalid');
+                newPasswordFeedback.textContent = 'Password should contain at least one number';
+                isValid = false;
+            } else {
+                newPasswordInput.classList.remove('is-invalid');
+                newPasswordFeedback.textContent = '';
+            }
+            
+            // Validate confirm password
+            if (!confirmPasswordInput.value) {
+                confirmPasswordInput.classList.add('is-invalid');
+                confirmPasswordFeedback.textContent = 'Please confirm your new password';
+                isValid = false;
+            } else if (confirmPasswordInput.value !== newPasswordInput.value) {
+                confirmPasswordInput.classList.add('is-invalid');
+                confirmPasswordFeedback.textContent = 'The password fields must match';
+                isValid = false;
+            } else {
+                confirmPasswordInput.classList.remove('is-invalid');
+                confirmPasswordFeedback.textContent = '';
+            }
+            
+            if (isValid) {
+                // Show SweetAlert2 confirmation
+                Swal.fire({
+                    title: 'Change Password',
+                    html: `Are you sure you want to change your password?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5a5a5a',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, change password',
+                    cancelButtonText: 'Cancel',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading state
+                        Swal.fire({
+                            title: 'Processing...',
+                            text: 'Please wait while we update your password.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                                
+                                // Get form data
+                                const formData = new FormData(passwordForm);
+                                
+                                // Send AJAX request
+                                fetch('{{ path('app_profile_change_password') }}', {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                .then(handleAjaxResponse)
+                                .then(data => {
+                                    if (data.success) {
+                                        // Show success message
+                                        Swal.fire({
+                                            title: 'Success!',
+                                            text: data.message,
+                                            icon: 'success',
+                                            confirmButtonColor: '#5a5a5a'
+                                        });
+                                        
+                                        // Reset form
+                                        passwordForm.reset();
+                                        document.querySelector('.password-strength').style.width = '0%';
+                                        document.querySelector('.password-feedback').textContent = '';
+                                    } else {
+                                        // Show error message
+                                        Swal.fire({
+                                            title: 'Error!',
+                                            text: data.message,
+                                            icon: 'error',
+                                            confirmButtonColor: '#5a5a5a'
+                                        });
+                                        
+                                        // Show validation errors
+                                        if (data.errors) {
+                                            if (data.errors.currentPassword) {
+                                                const currentPasswordInput = document.getElementById('change_password_currentPassword');
+                                                const currentPasswordFeedback = document.getElementById('current-password-feedback');
+                                                currentPasswordInput.classList.add('is-invalid');
+                                                currentPasswordFeedback.textContent = data.errors.currentPassword;
+                                            }
+                                            
+                                            if (data.errors.newPassword) {
+                                                const newPasswordInput = document.getElementById('change_password_newPassword_first');
+                                                const newPasswordFeedback = document.getElementById('new-password-feedback');
+                                                newPasswordInput.classList.add('is-invalid');
+                                                newPasswordFeedback.textContent = data.errors.newPassword;
+                                            }
+                                            
+                                            if (data.errors.confirmPassword) {
+                                                const confirmPasswordInput = document.getElementById('change_password_newPassword_second');
+                                                const confirmPasswordFeedback = document.getElementById('confirm-password-feedback');
+                                                confirmPasswordInput.classList.add('is-invalid');
+                                                confirmPasswordFeedback.textContent = data.errors.confirmPassword;
+                                            }
+                                        }
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    let errorMessage = 'An unexpected error occurred. Please try again.';
+                                    if (error && error.message) {
+                                        errorMessage = error.message;
+                                    }
+                                    
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: errorMessage,
+                                        icon: 'error',
+                                        confirmButtonColor: '#5a5a5a'
+                                    });
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %} 

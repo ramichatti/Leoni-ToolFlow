@@ -3,3 +3,50 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# Admin routes
+app_admin_dashboard:
+    path: /admin
+    controller: App\Controller\AdminController::dashboard
+
+app_admin_users:
+    path: /admin/users
+    controller: App\Controller\AdminController::usersList
+
+app_admin_users_new:
+    path: /admin/users/new
+    controller: App\Controller\AdminController::newUser
+
+app_admin_users_edit:
+    path: /admin/users/{id}/edit
+    controller: App\Controller\AdminController::editUser
+
+app_admin_users_delete:
+    path: /admin/users/{id}/delete
+    controller: App\Controller\AdminController::deleteUser
+    methods: [POST]
+
+# Tool routes
+app_admin_tools:
+    path: /admin/tools
+    controller: App\Controller\ToolController::index
+
+app_admin_tools_new:
+    path: /admin/tools/new
+    controller: App\Controller\ToolController::new
+
+app_admin_tools_edit:
+    path: /admin/tools/{id}/edit
+    controller: App\Controller\ToolController::edit
+
+app_admin_tools_delete:
+    path: /admin/tools/{id}/delete
+    controller: App\Controller\ToolController::delete
+    methods: [POST]
+
+# Profile routes
+controllers_profile:
+    resource:
+        path: ../src/Controller/ProfileController.php
+        namespace: App\Controller
+    type: attribute

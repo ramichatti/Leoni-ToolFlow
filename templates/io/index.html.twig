@@ -1,0 +1,351 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tool IO Operations{% endblock %}
+
+{% block stylesheets %}
+<style>
+    body {
+        padding-top: 70px;
+        background-color: #f8f9fc;
+    }
+
+    .io-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    }
+
+    .io-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f0f2f5;
+    }
+
+    .io-header h2 {
+        color: #2c3e50;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .card-header {
+        background: #f8f9fc;
+        padding: 1.25rem;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.35rem;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .radio-option input {
+        margin-right: 0.5rem;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn i {
+        margin-right: 0.5rem;
+    }
+
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        transform: translateY(-1px);
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+        transform: translateY(-1px);
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1.25rem;
+        margin-top: 2rem;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: none;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .alert {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c2c7;
+        color: #842029;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'navbar.html.twig' %}
+
+    <div class="container">
+        <div class="io-container">
+            <div class="io-header">
+                <h2>Tool Input/Output Operations</h2>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Select Tool and Operation</h3>
+                </div>
+                <div class="card-body">
+                    <form id="ioSelectionForm">
+                        <div class="form-group">
+                            <label for="toolSelect">Select Tool</label>
+                            <select class="form-control" id="toolSelect" name="toolId" required>
+                                <option value="">-- Select a tool --</option>
+                                {% for tool in tools %}
+                                    <option value="{{ tool.id }}">{{ tool.id }} - {{ tool.description.value }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="error-message" id="toolSelectError">Please select a tool</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Operation Type</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="operationType" value="in" id="operationTypeIn" checked> 
+                                    <span>IN (Entry)</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="operationType" value="out" id="operationTypeOut"> 
+                                    <span>OUT (Exit)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="withCahierGroup">
+                            <label>With Cahier</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="withCahier" value="yes" id="withCahierYes"> 
+                                    <span>Yes</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="withCahier" value="no" id="withCahierNo" checked> 
+                                    <span>No</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-primary" id="continueBtn">
+                                <i class="fas fa-arrow-right"></i>Continue
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ioSelectionForm = document.getElementById('ioSelectionForm');
+    const toolSelect = document.getElementById('toolSelect');
+    const toolSelectError = document.getElementById('toolSelectError');
+    const continueBtn = document.getElementById('continueBtn');
+    const operationTypeIn = document.getElementById('operationTypeIn');
+    const operationTypeOut = document.getElementById('operationTypeOut');
+    const alertContainer = document.getElementById('alertContainer');
+
+    // Handle form submission
+    continueBtn.addEventListener('click', function() {
+        // Validate tool selection
+        if (!toolSelect.value) {
+            toolSelect.classList.add('is-invalid');
+            toolSelectError.style.display = 'block';
+            return;
+        }
+
+        const toolId = toolSelect.value;
+        const operationType = operationTypeIn.checked ? 'in' : 'out';
+        const withCahier = document.querySelector('input[name="withCahier"]:checked').value;
+
+        // For IN operations, redirect to tool details to select a measure
+        if (operationType === 'in') {
+            window.location.href = `/tool-details/${toolId}`;
+        } else {
+            // For OUT operations, create a direct submission with withCahier value
+            const formData = {
+                toolId: toolId,
+                action: 'OUT',
+                with_cahier: withCahier
+            };
+
+            // Submit data for OUT operation
+            fetch('{{ path('app_io_submit') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'alert alert-success';
+                    successMessage.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        ${data.message}
+                    `;
+                    alertContainer.innerHTML = '';
+                    alertContainer.appendChild(successMessage);
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = '{{ path('app_home') }}';
+                    }, 2000);
+                } else {
+                    // Show error message
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'alert alert-danger';
+                    errorMessage.innerHTML = `
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        ${data.message}
+                    `;
+                    alertContainer.innerHTML = '';
+                    alertContainer.appendChild(errorMessage);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error message
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'alert alert-danger';
+                errorMessage.innerHTML = `
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    An error occurred while processing your request
+                `;
+                alertContainer.innerHTML = '';
+                alertContainer.appendChild(errorMessage);
+            });
+        }
+    });
+
+    // Clear validation error when tool is selected
+    toolSelect.addEventListener('change', function() {
+        if (this.value) {
+            this.classList.remove('is-invalid');
+            toolSelectError.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %} 

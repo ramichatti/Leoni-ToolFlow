@@ -1,0 +1,619 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Edit I/O Record{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .form-header {
+            background-color: #f8f9fc;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .form-header h1 {
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: #5a5a5a;
+        }
+        
+        .form-header p {
+            color: #6c757d;
+            margin-bottom: 0;
+            font-size: 1rem;
+            padding-top: 0.5rem;
+        }
+        
+        .btn-action {
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-action i {
+            margin-right: 0.5rem;
+        }
+        
+        .card {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(222, 226, 230, 0.3);
+        }
+        
+        .card-header h6 {
+            margin-bottom: 0;
+            font-weight: 700;
+            color: #5a5a5a;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #5a5a5a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #dee2e6;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #adb5bd;
+            box-shadow: 0 0 0 0.2rem rgba(173, 181, 189, 0.25);
+        }
+        
+        .form-text {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-select {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #dee2e6;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-select:focus {
+            border-color: #adb5bd;
+            box-shadow: 0 0 0 0.2rem rgba(173, 181, 189, 0.25);
+        }
+        
+        .badge-status {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-in {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .badge-out {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        
+        .readonly-field {
+            background-color: #f8f9fc;
+            cursor: not-allowed;
+        }
+        
+        /* New styles for improved form */
+        .measurement-form-group {
+            position: relative;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .measurement-form-group:hover {
+            border-color: #adb5bd;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05);
+        }
+        
+        .measurement-label {
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background-color: white;
+            padding: 0 0.5rem;
+            font-weight: 700;
+            color: #5a5a5a;
+            font-size: 0.9rem;
+        }
+        
+        .standard-value {
+            background-color: #e6f3ff;
+            color: #0a58ca;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.75rem;
+            border: 1px solid #cfe2ff;
+        }
+        
+        .standard-value-label {
+            font-size: 0.8rem;
+            color: #0a58ca;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .sample-value-label {
+            font-size: 0.8rem;
+            color: #fd7e14;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon .form-control {
+            padding-right: 2.5rem;
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            font-size: 1.1rem;
+        }
+        
+        .match .input-icon {
+            color: #0f5132;
+        }
+        
+        .mismatch .input-icon {
+            color: #842029;
+        }
+        
+        .info-section {
+            background-color: #f8f9fc;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            width: 120px;
+            font-weight: 600;
+            color: #5a5a5a;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: #6c757d;
+        }
+        
+        .measurement-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .measurement-column {
+            flex: 1;
+            padding: 0 0.5rem;
+        }
+        
+        .measurement-divider {
+            width: 1px;
+            background-color: #dee2e6;
+            align-self: stretch;
+            margin: 0 1rem;
+        }
+
+        /* Add conformity badge styles */
+        .badge-conformite {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-conforme {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-non-conforme {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .warning-message {
+            background-color: #fff5f5;
+            border-left: 4px solid #ef4444;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: #dc2626;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="form-header d-sm-flex align-items-center justify-content-between">
+            <div>
+                <h1>Edit Input/Output Record</h1>
+                <p class="mt-2">Update measurement values</p>
+                </br>
+            </div>
+            
+            <div class="d-flex mt-3 mt-sm-0">
+                <a href="{{ path('app_admin_io') }}" class="btn btn-secondary btn-action">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+                {# <a href="{{ path('app_admin_io_show', {'id': io.id}) }}" class="btn btn-info btn-action">
+                    <i class="fas fa-eye"></i> View Details
+                </a> #}
+            </div>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <!-- Edit Form -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Input/Output Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="info-section">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="info-label">Tool</div>
+                                <div class="info-value">{{ io.tool.id }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">User</div>
+                                <div class="info-value">{{ io.user.firstName }} {{ io.user.lastName }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="info-label">Status</div>
+                                <div class="info-value">
+                                    <span class="badge badge-status badge-{{ io.status.value|lower }}">
+                                        {{ io.status.value }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Conformity</div>
+                                <div class="info-value">
+                                    <span class="badge badge-conformite badge-{{ io.conformite == 'conforme' ? 'conforme' : 'non-conforme' }}">
+                                        {% if io.conformite == 'conforme' %}
+                                            Conforme
+                                        {% else %}
+                                            Non Conforme
+                                        {% endif %}
+                                    </span>
+                                    {% if io.conformite != 'conforme' %}
+                                        <div class="warning-message mt-2">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <span>Caution: Non-standard measurements detected</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Date</div>
+                                <div class="info-value">{{ io.dateEntre|date('Y-m-d H:i:s') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post" id="editIoForm">
+                    <div class="row">
+                        <!-- Section -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="measurement-form-group">
+                                <div class="measurement-label">Section</div>
+                                <div class="measurement-row">
+                                    <div class="measurement-column">
+                                        <div class="standard-value-label">Standard</div>
+                                        <div class="standard-value">{{ io.measure.section }}</div>
+                                    </div>
+                                    <div class="measurement-divider"></div>
+                                    <div class="measurement-column">
+                                        <div class="sample-value-label">Sample</div>
+                                        <div class="input-with-icon {{ io.section == io.measure.section ? 'match' : 'mismatch' }}">
+                                            <input type="number" step="0.01" id="section" name="section" class="form-control" value="{{ io.section }}" required>
+                                            <span class="input-icon">
+                                                {% if io.section == io.measure.section %}
+                                                    <i class="fas fa-check-circle"></i>
+                                                {% else %}
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Crimping Height -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="measurement-form-group">
+                                <div class="measurement-label">Crimping Height</div>
+                                <div class="measurement-row">
+                                    <div class="measurement-column">
+                                        <div class="standard-value-label">Standard</div>
+                                        <div class="standard-value">{{ io.measure.crimpingHeight }}</div>
+                                    </div>
+                                    <div class="measurement-divider"></div>
+                                    <div class="measurement-column">
+                                        <div class="sample-value-label">Sample</div>
+                                        <div class="input-with-icon {{ io.crimpingHeight == io.measure.crimpingHeight ? 'match' : 'mismatch' }}">
+                                            <input type="number" step="0.01" id="crimpingHeight" name="crimpingHeight" class="form-control" value="{{ io.crimpingHeight }}" required>
+                                            <span class="input-icon">
+                                                {% if io.crimpingHeight == io.measure.crimpingHeight %}
+                                                    <i class="fas fa-check-circle"></i>
+                                                {% else %}
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Insulation Height -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="measurement-form-group">
+                                <div class="measurement-label">Insulation Height</div>
+                                <div class="measurement-row">
+                                    <div class="measurement-column">
+                                        <div class="standard-value-label">Standard</div>
+                                        <div class="standard-value">{{ io.measure.insulationHeight }}</div>
+                                    </div>
+                                    <div class="measurement-divider"></div>
+                                    <div class="measurement-column">
+                                        <div class="sample-value-label">Sample</div>
+                                        <div class="input-with-icon {{ io.insulationHeight == io.measure.insulationHeight ? 'match' : 'mismatch' }}">
+                                            <input type="number" step="0.01" id="insulationHeight" name="insulationHeight" class="form-control" value="{{ io.insulationHeight }}" required>
+                                            <span class="input-icon">
+                                                {% if io.insulationHeight == io.measure.insulationHeight %}
+                                                    <i class="fas fa-check-circle"></i>
+                                                {% else %}
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Crimping Width -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="measurement-form-group">
+                                <div class="measurement-label">Crimping Width</div>
+                                <div class="measurement-row">
+                                    <div class="measurement-column">
+                                        <div class="standard-value-label">Standard</div>
+                                        <div class="standard-value">{{ io.measure.crimpingWidth }}</div>
+                                    </div>
+                                    <div class="measurement-divider"></div>
+                                    <div class="measurement-column">
+                                        <div class="sample-value-label">Sample</div>
+                                        <div class="input-with-icon {{ io.crimpingWidth == io.measure.crimpingWidth ? 'match' : 'mismatch' }}">
+                                            <input type="number" step="0.01" id="crimpingWidth" name="crimpingWidth" class="form-control" value="{{ io.crimpingWidth }}" required>
+                                            <span class="input-icon">
+                                                {% if io.crimpingWidth == io.measure.crimpingWidth %}
+                                                    <i class="fas fa-check-circle"></i>
+                                                {% else %}
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Insulation Width -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="measurement-form-group">
+                                <div class="measurement-label">Insulation Width</div>
+                                <div class="measurement-row">
+                                    <div class="measurement-column">
+                                        <div class="standard-value-label">Standard</div>
+                                        <div class="standard-value">{{ io.measure.insulationWidth }}</div>
+                                    </div>
+                                    <div class="measurement-divider"></div>
+                                    <div class="measurement-column">
+                                        <div class="sample-value-label">Sample</div>
+                                        <div class="input-with-icon {{ io.insulationWidth == io.measure.insulationWidth ? 'match' : 'mismatch' }}">
+                                            <input type="number" step="0.01" id="insulationWidth" name="insulationWidth" class="form-control" value="{{ io.insulationWidth }}" required>
+                                            <span class="input-icon">
+                                                {% if io.insulationWidth == io.measure.insulationWidth %}
+                                                    <i class="fas fa-check-circle"></i>
+                                                {% else %}
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{{ path('app_admin_io') }}" class="btn btn-secondary btn-action me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-action">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function() {
+            // Form validation
+            $('#editIoForm').on('submit', function(e) {
+                let isValid = true;
+                const fields = ['section', 'crimpingHeight', 'insulationHeight', 'crimpingWidth', 'insulationWidth'];
+                
+                fields.forEach(field => {
+                    const value = $('#' + field).val();
+                    if (!value || isNaN(value) || parseFloat(value) <= 0) {
+                        isValid = false;
+                        $('#' + field).addClass('is-invalid');
+                        
+                        // If there's no error message yet, add one
+                        if (!$('#' + field).next('.invalid-feedback').length) {
+                            $('#' + field).after('<div class="invalid-feedback">Please enter a valid positive number</div>');
+                        }
+                    } else {
+                        $('#' + field).removeClass('is-invalid');
+                        $('#' + field).next('.invalid-feedback').remove();
+                    }
+                });
+
+                // Check conformity before submitting
+                checkConformity();
+                
+                return isValid;
+            });
+            
+            // Remove validation errors when user starts typing
+            $('input').on('input', function() {
+                $(this).removeClass('is-invalid');
+                $(this).next('.invalid-feedback').remove();
+                
+                // Update the check/warning icon based on standard value
+                const inputId = $(this).attr('id');
+                const inputValue = parseFloat($(this).val());
+                const standardValue = parseFloat($(this).closest('.measurement-row').find('.standard-value').text());
+                
+                const iconContainer = $(this).siblings('.input-icon');
+                
+                if (Math.abs(inputValue - standardValue) <= 0.1) {
+                    $(this).closest('.input-with-icon').removeClass('mismatch').addClass('match');
+                    iconContainer.html('<i class="fas fa-check-circle"></i>');
+                } else {
+                    $(this).closest('.input-with-icon').removeClass('match').addClass('mismatch');
+                    iconContainer.html('<i class="fas fa-exclamation-circle"></i>');
+                }
+
+                // Check overall conformity whenever a value changes
+                checkConformity();
+            });
+
+            // Function to check conformity and update hidden field
+            function checkConformity() {
+                const fields = ['section', 'crimpingHeight', 'insulationHeight', 'crimpingWidth', 'insulationWidth'];
+                let isConforme = true;
+
+                fields.forEach(field => {
+                    const inputValue = parseFloat($('#' + field).val());
+                    const standardValue = parseFloat($('#' + field).closest('.measurement-row').find('.standard-value').text());
+                    
+                    if (isNaN(inputValue) || isNaN(standardValue) || Math.abs(inputValue - standardValue) > 0.1) {
+                        isConforme = false;
+                    }
+                });
+
+                // Update hidden conformity field
+                if (!$('#conformite').length) {
+                    $('form').append('<input type="hidden" id="conformite" name="conformite" value="' + (isConforme ? 'conforme' : 'non conforme') + '">');
+                } else {
+                    $('#conformite').val(isConforme ? 'conforme' : 'non conforme');
+                }
+
+                // Update the displayed conformity badge
+                const badge = $('.badge-conformite');
+                if (isConforme) {
+                    badge.removeClass('badge-non-conforme').addClass('badge-conforme').text('Conforme');
+                    $('.warning-message').hide();
+                } else {
+                    badge.removeClass('badge-conforme').addClass('badge-non-conforme').text('Non Conforme');
+                    $('.warning-message').show();
+                }
+            }
+
+            // Initialize conformity check on page load
+            checkConformity();
+        });
+    </script>
+{% endblock %} 

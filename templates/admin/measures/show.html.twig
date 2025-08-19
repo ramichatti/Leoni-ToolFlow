@@ -1,0 +1,65 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Measure Details{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Measure Details</h1>
+            <div>
+                <a href="{{ path('app_measure_index') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+                    <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to List
+                </a>
+                <a href="{{ path('app_measure_edit', {'id': measure.id}) }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                    <i class="fas fa-edit fa-sm text-white-50"></i> Edit
+                </a>
+                <form method="post" action="{{ path('app_measure_delete', {'id': measure.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');" style="display: inline-block;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ measure.id) }}">
+                    <button class="btn btn-sm btn-danger shadow-sm">
+                        <i class="fas fa-trash fa-sm text-white-50"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Measure Information</h6>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>ID</th>
+                            <td>{{ measure.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Section</th>
+                            <td>{{ measure.section }}</td>
+                        </tr>
+                        <tr>
+                            <th>Crimping Height</th>
+                            <td>{{ measure.crimpingHeight }}</td>
+                        </tr>
+                        <tr>
+                            <th>Insulation Height</th>
+                            <td>{{ measure.insulationHeight }}</td>
+                        </tr>
+                        <tr>
+                            <th>Crimping Width</th>
+                            <td>{{ measure.crimpingWidth }}</td>
+                        </tr>
+                        <tr>
+                            <th>Insulation Width</th>
+                            <td>{{ measure.insulationWidth }}</td>
+                        </tr>
+                        <tr>
+                            <th>Created At</th>
+                            <td>{{ measure.createdAt ? measure.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

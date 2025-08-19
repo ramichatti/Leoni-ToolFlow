@@ -1,0 +1,952 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Input Measurements - {{ tool.id }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    body {
+        padding-top: 70px;
+        background-color: #f8f9fc;
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .form-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 1.25rem;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 2rem rgba(18, 38, 63, 0.12);
+    }
+
+    .form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f0f2f5;
+        position: relative;
+    }
+
+    .form-header:after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 80px;
+        height: 2px;
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
+
+    .form-header h2 {
+        color: #1e293b;
+        font-size: 1.85rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(90deg, #1e293b, #475569);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .tool-id {
+        font-size: 1.1rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+
+    .card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.08);
+        margin-bottom: 2.25rem;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header {
+        background: linear-gradient(to right, #f8f9fc, #ffffff);
+        padding: 1.35rem;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 1rem 1rem 0 0;
+        position: relative;
+    }
+
+    .card-header:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, #3b82f6, #60a5fa);
+        border-radius: 4px 0 0 4px;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        color: #1e293b;
+        font-size: 1.35rem;
+        font-weight: 600;
+        padding-left: 10px;
+    }
+
+    .card-body {
+        padding: 1.75rem;
+    }
+
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .data-item {
+        background-color: #f8fafc;
+        padding: 1.25rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .data-item:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+        transform: translateY(-3px);
+    }
+
+    .data-item:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(to right, #3b82f6, #60a5fa);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .data-item:hover:after {
+        transform: scaleX(1);
+    }
+
+    .data-item h4 {
+        font-size: 1rem;
+        color: #64748b;
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+    }
+
+    .data-item p {
+        margin: 0;
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.75rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #334155;
+        font-size: 0.95rem;
+        transition: color 0.2s ease;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+        color: #1e293b;
+    }
+
+    .form-control:hover {
+        border-color: #cbd5e1;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        background-color: #fff;
+    }
+
+    .form-group:focus-within label {
+        color: #3b82f6;
+    }
+
+    .tolerance-info {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .tolerance-info:before {
+        content: '\f05a';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 0.5rem;
+        color: #94a3b8;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .radio-option:hover {
+        color: #3b82f6;
+    }
+
+    .radio-option input {
+        margin-right: 0.5rem;
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2.5rem;
+    }
+
+    .btn {
+        padding: 0.85rem 2.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 120%;
+        height: 0;
+        padding-bottom: 120%;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        transition: transform 0.5s, opacity 0.3s;
+    }
+
+    .btn:active:after {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+        transition: 0s;
+    }
+
+    .btn i {
+        margin-right: 0.75rem;
+    }
+
+    .btn-back {
+        background-color: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-back:hover {
+        background-color: #e2e8f0;
+        color: #334155;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.35);
+    }
+
+    .error-message {
+        color: #ef4444;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: none;
+        animation: fadeIn 0.3s ease;
+        padding-left: 0.5rem;
+        border-left: 2px solid #ef4444;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .standard-value {
+        font-weight: 700;
+        color: #3b82f6;
+    }
+
+    .tolerance-range {
+        font-style: italic;
+        color: #64748b;
+        margin-left: 0.25rem;
+    }
+
+    .alert {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        position: relative;
+        animation: alertFadeIn 0.5s ease-in-out;
+        border-left: 4px solid;
+    }
+
+    @keyframes alertFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Modal styles */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(15, 23, 42, 0.6);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+        backdrop-filter: blur(4px);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        width: 90%;
+        max-width: 500px;
+        height: auto;
+        min-height: 250px;
+        max-height: 90vh;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        z-index: 1001;
+        animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+        flex-direction: column;
+    }
+
+    @keyframes zoomIn {
+        from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+        to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        position: relative;
+    }
+
+    .modal-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-body {
+        padding: 1.75rem;
+        text-align: center;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .modal-message {
+        font-size: 1.1rem;
+        color: #334155;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .modal-footer {
+        display: flex;
+        border-top: 1px solid #f1f5f9;
+        margin-top: auto;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 1rem 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .modal-btn-cancel {
+        color: #64748b;
+        border-right: 1px solid #f1f5f9;
+    }
+
+    .modal-btn-cancel:hover {
+        background-color: #f8fafc;
+        color: #334155;
+    }
+
+    .modal-btn-confirm {
+        color: #3b82f6;
+    }
+
+    .modal-btn-confirm:hover {
+        background-color: #eff6ff;
+        color: #1d4ed8;
+    }
+    
+    /* Notification styles */
+    .notification-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .notification {
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        font-weight: 500;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        border-left: 5px solid;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .notification-success {
+        background-color: #ecfdf5;
+        border-left-color: #10b981;
+        color: #065f46;
+    }
+
+    .notification-error {
+        background-color: #fef2f2;
+        border-left-color: #ef4444;
+        color: #991b1b;
+    }
+
+    .notification-info {
+        background-color: #eff6ff;
+        border-left-color: #3b82f6;
+        color: #1e40af;
+    }
+
+    .notification i {
+        margin-right: 12px;
+        font-size: 1.35rem;
+    }
+    
+    /* Measurement summary styles */
+    #measurementSummary {
+        text-align: left;
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    #measurementSummary div {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+    
+    #measurementSummary div:last-child {
+        border-bottom: none;
+    }
+    
+    #measurementSummary strong {
+        color: #334155;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 1.5rem;
+            margin: 1rem;
+            width: auto;
+        }
+        
+        .data-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+        
+        .modal {
+            width: 95%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'navbar.html.twig' %}
+
+    <div class="container">
+        <div class="form-container">
+            <div class="form-header">
+                <div>
+                    <h2>Input Sample Measurements</h2>
+                    <div class="tool-id">Tool: {{ tool.id }}</div>
+                </div>
+            </div>
+
+            <!-- Notification Container -->
+            <div id="notificationContainer" class="notification-container"></div>
+
+            <!-- Tool Information Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Tool Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <h4>Description</h4>
+                            <p>{{ tool.description.value }}</p>
+                        </div>
+                        <div class="data-item">
+                            <h4>Manufacturer</h4>
+                            <p>{{ tool.manufacturer.value }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Measure Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Selected Measure Standards</h3>
+                </div>
+                <div class="card-body">
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <h4>Section</h4>
+                            <p>{{ measure.section }}</p>
+                        </div>
+                        <div class="data-item">
+                            <h4>Crimping Height</h4>
+                            <p>{{ measure.crimpingHeight }}</p>
+                        </div>
+                        <div class="data-item">
+                            <h4>Insulation Height</h4>
+                            <p>{{ measure.insulationHeight }}</p>
+                        </div>
+                        <div class="data-item">
+                            <h4>Crimping Width</h4>
+                            <p>{{ measure.crimpingWidth }}</p>
+                        </div>
+                        <div class="data-item">
+                            <h4>Insulation Width</h4>
+                            <p>{{ measure.insulationWidth }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Measurements Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Enter Sample Measurements</h3>
+                </div>
+                <div class="card-body">
+                    <form id="sampleForm">
+                        <!-- Hidden input for withCahier value -->
+                        <input type="hidden" name="withCahier" id="withCahierValue" value="{{ withCahier }}">
+
+                        <!-- Sample Measurement Fields -->
+                        <div class="data-grid">
+                            <div class="form-group">
+                                <label for="section">Section</label>
+                                <input type="number" step="0.001" class="form-control" id="section" name="section" required>
+                                <div class="tolerance-info">
+                                    Standard: <span class="standard-value">{{ measure.section }}</span>
+                                    <span class="tolerance-range">(±0.1)</span>
+                                </div>
+                                <div class="error-message" id="sectionError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="crimpingHeight">Crimping Height</label>
+                                <input type="number" step="0.001" class="form-control" id="crimpingHeight" name="crimpingHeight" required>
+                                <div class="tolerance-info">
+                                    Standard: <span class="standard-value">{{ measure.crimpingHeight }}</span>
+                                    <span class="tolerance-range">(±0.1)</span>
+                                </div>
+                                <div class="error-message" id="crimpingHeightError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="insulationHeight">Insulation Height</label>
+                                <input type="number" step="0.001" class="form-control" id="insulationHeight" name="insulationHeight" required>
+                                <div class="tolerance-info">
+                                    Standard: <span class="standard-value">{{ measure.insulationHeight }}</span>
+                                    <span class="tolerance-range">(±0.1)</span>
+                                </div>
+                                <div class="error-message" id="insulationHeightError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="crimpingWidth">Crimping Width</label>
+                                <input type="number" step="0.001" class="form-control" id="crimpingWidth" name="crimpingWidth" required>
+                                <div class="tolerance-info">
+                                    Standard: <span class="standard-value">{{ measure.crimpingWidth }}</span>
+                                    <span class="tolerance-range">(±0.1)</span>
+                                </div>
+                                <div class="error-message" id="crimpingWidthError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="insulationWidth">Insulation Width</label>
+                                <input type="number" step="0.001" class="form-control" id="insulationWidth" name="insulationWidth" required>
+                                <div class="tolerance-info">
+                                    Standard: <span class="standard-value">{{ measure.insulationWidth }}</span>
+                                    <span class="tolerance-range">(±0.1)</span>
+                                </div>
+                                <div class="error-message" id="insulationWidthError"></div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-back" onclick="window.location.href='{{ path('app_io_form', {'toolId': tool.id, 'action': 'in', 'measureId': 0}) }}'">
+                                <i class="fas fa-arrow-left"></i>Back
+                            </button>
+                            <button type="button" id="submitBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i>Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Confirm Measurements</h4>
+        </div>
+        <div class="modal-body">
+            <p class="modal-message">
+                Are you sure you want to save these measurements for tool <strong>{{ tool.id }}</strong>?
+            </p>
+            <div id="measurementSummary" style="text-align: left; margin-top: 15px; padding: 10px; background: #f8f9fc; border-radius: 8px;">
+                <!-- Summary will be populated by JavaScript -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="hideConfirmModal()">
+                Cancel
+            </button>
+            <button type="button" class="modal-btn modal-btn-confirm" onclick="submitForm()">
+                Save
+            </button>
+        </div>
+    </div>
+    <div id="modalOverlay" class="modal-overlay" onclick="hideConfirmModal()"></div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sampleForm = document.getElementById('sampleForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const withCahierValue = document.getElementById('withCahierValue');
+    const tolerance = 0.1;
+    
+    // Measure standards for validation
+    const measure = {
+        section: {{ measure.section }},
+        crimpingHeight: {{ measure.crimpingHeight }},
+        insulationHeight: {{ measure.insulationHeight }},
+        crimpingWidth: {{ measure.crimpingWidth }},
+        insulationWidth: {{ measure.insulationWidth }}
+    };
+
+    // Function to validate if a value is within tolerance
+    function isWithinTolerance(value, standard) {
+        const min = standard - tolerance;
+        const max = standard + tolerance;
+        return value >= min && value <= max;
+    }
+
+    // Function to validate a field
+    function validateField(field, standard) {
+        const value = parseFloat(field.value);
+        const errorElement = document.getElementById(field.id + 'Error');
+        
+        if (isNaN(value)) {
+            field.classList.add('is-invalid');
+            errorElement.textContent = 'Please enter a valid number';
+            errorElement.style.display = 'block';
+            return false;
+        }
+        
+        if (!isWithinTolerance(value, standard)) {
+            field.classList.add('is-warning');
+            errorElement.textContent = `Value outside tolerance range: ${(standard - tolerance).toFixed(3)} - ${(standard + tolerance).toFixed(3)}`;
+            errorElement.style.display = 'block';
+            // We don't return false here because out-of-tolerance values are allowed but marked
+        }
+        
+        return true;
+    }
+
+    // Add input event listeners for real-time validation
+    document.getElementById('section').addEventListener('input', function() {
+        validateField(this, measure.section);
+    });
+    
+    document.getElementById('crimpingHeight').addEventListener('input', function() {
+        validateField(this, measure.crimpingHeight);
+    });
+    
+    document.getElementById('insulationHeight').addEventListener('input', function() {
+        validateField(this, measure.insulationHeight);
+    });
+    
+    document.getElementById('crimpingWidth').addEventListener('input', function() {
+        validateField(this, measure.crimpingWidth);
+    });
+    
+    document.getElementById('insulationWidth').addEventListener('input', function() {
+        validateField(this, measure.insulationWidth);
+    });
+
+    // Function to show notifications
+    function showNotification(message, type) {
+        const notificationContainer = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        let icon = 'info-circle';
+        if (type === 'success') icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+        
+        notification.innerHTML = `<i class="fas fa-${icon}"></i>${message}`;
+        notificationContainer.appendChild(notification);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+            notification.style.transition = 'all 0.3s ease';
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+    
+    // Modal functions
+    window.showConfirmModal = function() {
+        const modal = document.getElementById('confirmModal');
+        modal.style.display = 'flex';
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        
+        // Populate measurement summary
+        const summaryDiv = document.getElementById('measurementSummary');
+        summaryDiv.innerHTML = `
+            <div style="margin-bottom: 8px;"><strong>Section:</strong> ${document.getElementById('section').value}</div>
+            <div style="margin-bottom: 8px;"><strong>Crimping Height:</strong> ${document.getElementById('crimpingHeight').value}</div>
+            <div style="margin-bottom: 8px;"><strong>Insulation Height:</strong> ${document.getElementById('insulationHeight').value}</div>
+            <div style="margin-bottom: 8px;"><strong>Crimping Width:</strong> ${document.getElementById('crimpingWidth').value}</div>
+            <div><strong>Insulation Width:</strong> ${document.getElementById('insulationWidth').value}</div>
+        `;
+    };
+
+    window.hideConfirmModal = function() {
+        document.getElementById('confirmModal').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Re-enable scrolling
+    };
+    
+    // Close modal when Escape key is pressed
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            hideConfirmModal();
+        }
+    });
+
+    // Submit button click handler - show confirmation modal
+    submitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Validate all fields
+        const fields = ['section', 'crimpingHeight', 'insulationHeight', 'crimpingWidth', 'insulationWidth'];
+        let hasInvalidInput = false;
+        
+        for (const fieldId of fields) {
+            const field = document.getElementById(fieldId);
+            const value = parseFloat(field.value);
+            
+            if (isNaN(value) || value <= 0) {
+                const errorElement = document.getElementById(fieldId + 'Error');
+                field.classList.add('is-invalid');
+                errorElement.textContent = 'Please enter a valid positive number';
+                errorElement.style.display = 'block';
+                hasInvalidInput = true;
+            }
+        }
+        
+        if (hasInvalidInput) {
+            return;
+        }
+        
+        // Show confirmation modal
+        showConfirmModal();
+    });
+
+    // Form submission function - called from modal
+    window.submitForm = function() {
+        // Hide modal
+        hideConfirmModal();
+        
+        // Show loading notification
+        showNotification('Processing your request...', 'info');
+        
+        // Prepare data for submission
+        const formData = {
+            toolId: '{{ tool.id }}',
+            measureId: {{ measure.id }},
+            action: 'IN',
+            with_cahier: withCahierValue.value,
+            section: parseFloat(document.getElementById('section').value),
+            crimpingHeight: parseFloat(document.getElementById('crimpingHeight').value),
+            insulationHeight: parseFloat(document.getElementById('insulationHeight').value),
+            crimpingWidth: parseFloat(document.getElementById('crimpingWidth').value),
+            insulationWidth: parseFloat(document.getElementById('insulationWidth').value)
+        };
+        
+        // Submit data
+        fetch('{{ path('app_io_submit') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success notification
+                showNotification(`${data.message} - Status: ${data.conformite}`, 'success');
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = '{{ path('app_home') }}';
+                }, 2000);
+            } else {
+                // Show error notification
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Show error notification
+            showNotification('An error occurred while processing your request', 'error');
+        });
+    };
+});
+</script>
+{% endblock %} 

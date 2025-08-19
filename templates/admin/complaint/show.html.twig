@@ -1,0 +1,303 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Complaint Details{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .complaint-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .meta-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 0.25rem;
+    }
+    
+    .meta-value {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .complaint-content {
+        margin-bottom: 2rem;
+    }
+    
+    .content-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .content-box {
+        background-color: #f8f9fc;
+        border-radius: 0.35rem;
+        padding: 1.5rem;
+        border: 1px solid #e3e6f0;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #5a5a5a;
+    }
+    
+    .user-details h6 {
+        margin-bottom: 0.25rem;
+    }
+    
+    .user-id {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0 text-gray-800">Complaint Details</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_admin_complaints') }}">Complaints</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">View Complaint #{{ complaint.id }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <div>
+                <a href="{{ path('app_admin_complaints') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i> Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ complaint.subject }}</h6>
+                        <span class="badge {% if complaint.status.value == 'PENDING' %}bg-warning text-dark{% elseif complaint.status.value == 'PROCESSING' %}bg-info{% elseif complaint.status.value == 'RESOLVED' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ complaint.status.value|capitalize }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="complaint-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Submitted</span>
+                                <span class="meta-value">{{ complaint.createdAt|date('d/m/Y H:i') }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Last Update</span>
+                                <span class="meta-value">
+                                    {% if complaint.updatedAt %}
+                                        {{ complaint.updatedAt|date('d/m/Y H:i') }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Complaint ID</span>
+                                <span class="meta-value">#{{ complaint.id }}</span>
+                            </div>
+                        </div>
+
+                        <div class="complaint-content">
+                            <div class="content-label">Description</div>
+                            <div class="content-box">
+                                {{ complaint.description|nl2br }}
+                            </div>
+                        </div>
+
+                        {% if complaint.adminResponse %}
+                            <div class="complaint-content">
+                                <div class="content-label">Admin Response</div>
+                                <div class="content-box">
+                                    {{ complaint.adminResponse|nl2br }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="action-buttons">
+                            <a href="{{ path('app_admin_complaint_edit', {'id': complaint.id}) }}" class="btn btn-primary">
+                                <i class="fas fa-edit me-2"></i> Edit & Respond
+                            </a>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash me-2"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">User Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                {{ complaint.user.firstName|first }}{{ complaint.user.lastName|first }}
+                            </div>
+                            <div class="user-details">
+                                <h6>{{ complaint.user.firstName }} {{ complaint.user.lastName }}</h6>
+                                <span class="user-id">ID: {{ complaint.user.id }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="fw-bold mb-1">Email</div>
+                            <div>{{ complaint.user.email }}</div>
+                        </div>
+                        
+                        {% if complaint.user.tel %}
+                            <div class="mb-3">
+                                <div class="fw-bold mb-1">Phone</div>
+                                <div>{{ complaint.user.tel }}</div>
+                            </div>
+                        {% endif %}
+                        
+                        <div>
+                            <div class="fw-bold mb-1">Role</div>
+                            <div>{{ complaint.user.role.value|replace({'ROLE_': '', '_': ' '})|capitalize }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Status History</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker bg-success"></div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title">Complaint Created</h6>
+                                    <p class="timeline-date">{{ complaint.createdAt|date('d/m/Y H:i') }}</p>
+                                </div>
+                            </div>
+                            
+                            {% if complaint.updatedAt %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker {% if complaint.status.value == 'RESOLVED' %}bg-success{% elseif complaint.status.value == 'PROCESSING' %}bg-info{% elseif complaint.status.value == 'REJECTED' %}bg-danger{% else %}bg-warning{% endif %}"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="timeline-title">Status Updated to {{ complaint.status.value|capitalize }}</h6>
+                                        <p class="timeline-date">{{ complaint.updatedAt|date('d/m/Y H:i') }}</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this complaint?
+                    <p class="mt-2 mb-0"><strong>Subject:</strong> {{ complaint.subject }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="post" action="{{ path('app_admin_complaint_delete', {'id': complaint.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ complaint.id) }}">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .timeline:before {
+        content: '';
+        position: absolute;
+        left: 0.5rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e3e6f0;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: -1.5rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background: #4e73df;
+        top: 0.25rem;
+    }
+    
+    .timeline-content {
+        padding-left: 0.5rem;
+    }
+    
+    .timeline-title {
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .timeline-date {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %} 

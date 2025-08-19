@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I/O History - Modern Table Design</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a202c;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-title i {
+            color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+            margin-left: 4rem;
+        }
+
+        /* KPI Cards */
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color, #667eea), var(--accent-light, #764ba2));
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .kpi-card.in { --accent-color: #10b981; --accent-light: #34d399; }
+        .kpi-card.out { --accent-color: #ef4444; --accent-light: #f87171; }
+        .kpi-card.total { --accent-color: #3b82f6; --accent-light: #60a5fa; }
+        .kpi-card.conforme { --accent-color: #10b981; --accent-light: #34d399; }
+        .kpi-card.non-conforme { --accent-color: #ef4444; --accent-light: #f87171; }
+
+        .kpi-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .kpi-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            background: linear-gradient(135deg, 
+                rgba(var(--accent-rgb, 102, 126, 234), 0.1), 
+                rgba(var(--accent-rgb, 102, 126, 234), 0.05));
+        }
+
+        .kpi-info h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-info p {
+            color: #718096;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Search Section */
+        .search-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-group label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .search-input, .date-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .search-input:focus, .date-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: #ffffff;
+        }
+
+        .search-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .reset-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(113, 128, 150, 0.4);
+        }
+
+        /* Table Container */
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .results-info {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+
+        /* Modern Table Styles */
+        .modern-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .modern-table thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .modern-table th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .modern-table th:first-child {
+            border-top-left-radius: 0;
+        }
+
+        .modern-table th:last-child {
+            border-top-right-radius: 0;
+        }
+
+        .modern-table tbody tr {
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .modern-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .modern-table td {
+            padding: 1.25rem 1.5rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .modern-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 80px;
+            justify-content: center;
+        }
+
+        .status-badge.in {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
+        .status-badge.out {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+        }
+
+        .conformite-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 1.5rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .conformite-badge.conforme {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
+        .conformite-badge.non-conforme {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+        }
+
+        .machine-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.7rem;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #93c5fd;
+        }
+
+        /* Tool Info */
+        .tool-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .tool-id {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2d3748;
+        }
+
+        .tool-name {
+            color: #4a5568;
+            font-size: 0.9rem;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tool-manufacturer {
+            color: #718096;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        /* Date Display */
+        .date-display {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .date-main {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .date-time {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #718096;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.8);
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .page-link:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .page-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px -3px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modern-table {
+                font-size: 0.85rem;
+            }
+
+            .modern-table th,
+            .modern-table td {
+                padding: 0.75rem 1rem;
+            }
+
+            .tool-name {
+                max-width: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-container {
+                grid-template-columns: 1fr;
+            }
+
+            .modern-table th,
+            .modern-table td {
+                padding: 0.5rem 0.75rem;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header fade-in">
+            <h1 class="page-title">
+                <i class="fas fa-history"></i>
+                Tool Operations History
+            </h1>
+            <p class="page-subtitle">Track and monitor all tool check-in and check-out operations</p>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-container fade-in">
+            <div class="kpi-card in">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="total-in">24</h3>
+                        <p>Total IN</p>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card out">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="total-out">18</h3>
+                        <p>Total OUT</p>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card total">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="total-operations">42</h3>
+                        <p>Total Operations</p>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card conforme">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="total-conforme">36</h3>
+                        <p>Conforme</p>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card non-conforme">
+                <div class="kpi-content">
+                    <div class="kpi-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="total-non-conforme">6</h3>
+                        <p>Non Conforme</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-container fade-in">
+            <div class="search-form">
+                <div class="search-group">
+                    <label for="toolId">Inventory No.</label>
+                    <input type="text" id="toolId" class="search-input" placeholder="Enter inventory number...">
+                </div>
+                <div class="search-group">
+                    <label for="status">Status</label>
+                    <select id="status" class="search-input">
+                        <option value="">All Statuses</option>
+                        <option value="IN">IN - Tool Check-in</option>
+                        <option value="OUT">OUT - Tool Check-out</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <label for="conformite">Conformité</label>
+                    <select id="conformite" class="search-input">
+                        <option value="">All</option>
+                        <option value="conforme">Conforme</option>
+                        <option value="non conforme">Non Conforme</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <label for="machineNumber">Machine Number</label>
+                    <input type="number" id="machineNumber" class="search-input" placeholder="Machine number..." min="1">
+                </div>
+                <div class="search-group">
+                    <label for="dateFrom">From Date</label>
+                    <input type="text" id="dateFrom" class="date-input" placeholder="Select start date" readonly>
+                </div>
+                <div class="search-group">
+                    <label for="dateTo">To Date</label>
+                    <input type="text" id="dateTo" class="date-input" placeholder="Select end date" readonly>
+                </div>
+            </div>
+            <div class="search-actions">
+                <button type="button" id="resetButton" class="reset-btn">
+                    <i class="fas fa-undo-alt"></i>
+                    Reset All Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container fade-in">
+            <div class="table-header">
+                <div class="table-title">
+                    <i class="fas fa-table"></i>
+                    Operations Overview
+                </div>
+                <div class="results-info" id="results-info">
+                    Showing 42 results
+                </div>
+            </div>
+
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Tool Info</th>
+                        <th>Status</th>
+                        <th>Conformité</th>
+                        <th>Date & Time</th>
+                        <th>Machine</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Sample data rows -->
+                </tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="results-summary">
+                    <span id="page-info">Page 1 of 3 (42 items)</span>
+                </div>
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Details -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="modal-title">Operation Details</span>
+                </div>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Modal content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Sample data - replace with your actual data
+        const sampleData = [
+            {
+                id: 1,
+                toolId: "T001",
+                toolName: "Precision Crimping Tool",
+                manufacturer: "Molex Inc.",
+                status: "IN",
+                conformite: "conforme",
+                date: "2024-01-15",
+                time: "14:30",
+                machine: null,
+                measurements: {
+                    section: 2.5,
+                    crimpingHeight: 1.2,
+                    insulationHeight: 2.1,
+                    crimpingWidth: 3.4,
+                    insulationWidth: 4.2
+                }
+            },
+            {
+                id: 2,
+                toolId: "T002", 
+                toolName: "Wire Stripping Tool",
+                manufacturer: "TE Connectivity",
+                status: "OUT",
+                conformite: null,
+                date: "2024-01-15",
+                time: "13:45",
+                machine: 5
+            },
+            {
+                id: 3,
+                toolId: "T003",
+                toolName: "Terminal Insertion Tool",
+                manufacturer: "JST Manufacturing",
+                status: "IN",
+                conformite: "non conforme",
+                date: "2024-01-15",
+                time: "12:15",
+                machine: null,
+                measurements: {
+                    section: 2.8,
+                    crimpingHeight: 1.5,
+                    insulationHeight: 2.4,
+                    crimpingWidth: 3.1,
+                    insulationWidth: 4.5
+                }
+            },
+            // Add more sample data as needed
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDatePickers();
+            renderTable(sampleData);
+            setupEventListeners();
+            updateKPIs(sampleData);
+        });
+
+        // Initialize date pickers
+        function initializeDatePickers() {
+            const dateConfig = {
+                dateFormat: "Y-m-d",
+                maxDate: "today",
+                disableMobile: true
+            };
+
+            const dateFromPicker = flatpickr("#dateFrom", {
+                ...dateConfig,
+                onChange: function(selectedDates, dateStr) {
+                    if (selectedDates[0]) {
+                        dateToPicker.set('minDate', dateStr);
+                        filterTable();
+                    }
+                }
+            });
+
+            const dateToPicker = flatpickr("#dateTo", {
+                ...dateConfig,
+                onChange: function(selectedDates, dateStr) {
+                    if (selectedDates[0]) {
+                        dateFromPicker.set('maxDate', dateStr);
+                        filterTable();
+                    }
+                }
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('toolId').addEventListener('input', debounce(filterTable, 300));
+            document.getElementById('status').addEventListener('change', filterTable);
+            document.getElementById('conformite').addEventListener('change', filterTable);
+            document.getElementById('machineNumber').addEventListener('input', debounce(filterTable, 300));
+            document.getElementById('resetButton').addEventListener('click', resetFilters);
+        }
+
+        // Render table with data
+        function renderTable(data) {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3>No Results Found</h3>
+                            <p>No matching operations found. Try adjusting your search criteria.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-tool-id', item.toolId.toLowerCase());
+                row.setAttribute('data-status', item.status);
+                row.setAttribute('data-conformite', item.conformite || '');
+                row.setAttribute('data-date', item.date);
+                row.setAttribute('data-machine', item.machine || '');
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="tool-info">
+                            <div class="tool-id">#${item.toolId}</div>
+                            <div class="tool-name" title="${item.toolName}">${item.toolName}</div>
+                            <div class="tool-manufacturer">${item.manufacturer}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${item.status.toLowerCase()}">
+                            <i class="fas fa-sign-${item.status.toLowerCase() === 'in' ? 'in' : 'out'}-alt"></i>
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td>
+                        ${item.conformite ? `
+                            <span class="conformite-badge ${item.conformite}">
+                                <i class="fas ${item.conformite === 'conforme' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                                ${item.conformite === 'conforme' ? 'Conforme' : 'Non Conforme'}
+                            </span>
+                        ` : '<span style="color: #a0aec0;">N/A</span>'}
+                    </td>
+                    <td>
+                        <div class="date-display">
+                            <div class="date-main">${formatDate(item.date)}</div>
+                            <div class="date-time">${item.time}</div>
+                        </div>
+                    </td>
+                    <td>
+                        ${item.machine ? `
+                            <span class="machine-badge">
+                                <i class="fas fa-cogs"></i>
+                                M${item.machine}
+                            </span>
+                        ` : '<span style="color: #a0aec0;">N/A</span>'}
+                    </td>
+                    <td>
+                        <button class="action-btn" onclick="showDetails(${item.id})">
+                            <i class="fas fa-eye"></i>
+                            Details
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+
+            updateResultsInfo(data.length);
+        }
+
+        // Update KPIs
+        function updateKPIs(data) {
+            const inCount = data.filter(item => item.status === 'IN').length;
+            const outCount = data.filter(item => item.status === 'OUT').length;
+            const conformeCount = data.filter(item => item.conformite === 'conforme').length;
+            const nonConformeCount = data.filter(item => item.conformite === 'non conforme').length;
+
+            document.getElementById('total-in').textContent = inCount;
+            document.getElementById('total-out').textContent = outCount;
+            document.getElementById('total-operations').textContent = data.length;
+            document.getElementById('total-conforme').textContent = conformeCount;
+            document.getElementById('total-non-conforme').textContent = nonConformeCount;
+        }
+
+        // Filter table based on search criteria
+        function filterTable() {
+            const toolId = document.getElementById('toolId').value.toLowerCase().trim();
+            const status = document.getElementById('status').value;
+            const conformite = document.getElementById('conformite').value;
+            const machineNumber = document.getElementById('machineNumber').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+
+            const filteredData = sampleData.filter(item => {
+                let show = true;
+
+                if (toolId && !item.toolId.toLowerCase().includes(toolId)) {
+                    show = false;
+                }
+
+                if (status && item.status !== status) {
+                    show = false;
+                }
+
+                if (conformite && item.conformite !== conformite) {
+                    show = false;
+                }
+
+                if (machineNumber && item.machine != machineNumber) {
+                    show = false;
+                }
+
+                if (dateFrom && item.date < dateFrom) {
+                    show = false;
+                }
+
+                if (dateTo && item.date > dateTo) {
+                    show = false;
+                }
+
+                return show;
+            });
+
+            renderTable(filteredData);
+            updateKPIs(filteredData);
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            document.getElementById('toolId').value = '';
+            document.getElementById('status').value = '';
+            document.getElementById('conformite').value = '';
+            document.getElementById('machineNumber').value = '';
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+
+            // Reset date picker constraints
+            flatpickr("#dateFrom").clear();
+            flatpickr("#dateTo").clear();
+
+            // Add animation
+            document.getElementById('resetButton').classList.add('pulse');
+            setTimeout(() => {
+                document.getElementById('resetButton').classList.remove('pulse');
+            }, 1000);
+
+            renderTable(sampleData);
+            updateKPIs(sampleData);
+        }
+
+        // Show details modal
+        function showDetails(itemId) {
+            const item = sampleData.find(data => data.id === itemId);
+            if (!item) return;
+
+            const modal = document.getElementById('detailsModal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            modalTitle.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                Tool #${item.toolId} - ${item.status === 'IN' ? 'Check-in' : 'Check-out'} Details
+            `;
+
+            let modalContent = `
+                <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem;">
+                    <h3 style="color: #2d3748; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-wrench"></i>
+                        Tool Information
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="background: white; padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                            <label style="color: #718096; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">ID</label>
+                            <div style="font-weight: 600; color: #2d3748; margin-top: 0.25rem;">${item.toolId}</div>
+                        </div>
+                        <div style="background: white; padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                            <label style="color: #718096; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Name</label>
+                            <div style="font-weight: 600; color: #2d3748; margin-top: 0.25rem;">${item.toolName}</div>
+                        </div>
+                        <div style="background: white; padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                            <label style="color: #718096; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Manufacturer</label>
+                            <div style="font-weight: 600; color: #2d3748; margin-top: 0.25rem;">${item.manufacturer}</div>
+                        </div>
+                        <div style="background: white; padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                            <label style="color: #718096; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Status</label>
+                            <div style="margin-top: 0.25rem;">
+                                <span class="status-badge ${item.status.toLowerCase()}">
+                                    <i class="fas fa-sign-${item.status.toLowerCase() === 'in' ? 'in' : 'out'}-alt"></i>
+                                    ${item.status}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                            <label style="color: #718096; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Date & Time</label>
+                            <div style="font-weight: 600; color: #2d3748; margin-top: 0.25rem;">${formatDate(item.date)} ${item.time}</div>
+                        </div>
+                        ${item.conformite ? `
+                            <div style="background: white; padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                                <label style="color: #718096; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Conformité</label>
+                                <div style="margin-top: 0.25rem;">
+                                    <span class="conformite-badge ${item.conformite}">
+                                        <i class="fas ${item.conformite === 'conforme' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                                        ${item.conformite === 'conforme' ? 'Conforme' : 'Non Conforme'}
+                                    </span>
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${item.machine ? `
+                            <div style="background: white; padding: 1rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                                <label style="color: #718096; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Machine</label>
+                                <div style="margin-top: 0.25rem;">
+                                    <span class="machine-badge">
+                                        <i class="fas fa-cogs"></i>
+                                        Machine ${item.machine}
+                                    </span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            if (item.status === 'IN' && item.measurements) {
+                modalContent += `
+                    <div style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); padding: 2rem; border-radius: 1rem; border: 2px solid #0ea5e9;">
+                        <h3 style="color: #0c4a6e; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-ruler-combined"></i>
+                            Measurement Details
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                `;
+
+                const measurements = [
+                    { label: 'Section', value: item.measurements.section, unit: 'mm²', standard: 2.5, icon: 'fas fa-vector-square' },
+                    { label: 'Crimping Height', value: item.measurements.crimpingHeight, unit: 'mm', standard: 1.2, icon: 'fas fa-arrows-alt-v' },
+                    { label: 'Insulation Height', value: item.measurements.insulationHeight, unit: 'mm', standard: 2.0, icon: 'fas fa-arrows-alt-v' },
+                    { label: 'Crimping Width', value: item.measurements.crimpingWidth, unit: 'mm', standard: 3.5, icon: 'fas fa-arrows-alt-h' },
+                    { label: 'Insulation Width', value: item.measurements.insulationWidth, unit: 'mm', standard: 4.0, icon: 'fas fa-arrows-alt-h' }
+                ];
+
+                measurements.forEach(measurement => {
+                    const diff = measurement.value - measurement.standard;
+                    const diffPercent = (diff / measurement.standard) * 100;
+                    let status = '';
+                    let statusClass = '';
+                    let statusIcon = '';
+
+                    if (Math.abs(diffPercent) > 10) {
+                        status = 'Critical Deviation';
+                        statusClass = 'background: linear-gradient(135deg, #fee2e2, #fecaca); color: #991b1b; border: 2px solid #f87171;';
+                        statusIcon = 'fas fa-exclamation-triangle';
+                    } else if (Math.abs(diffPercent) > 5) {
+                        status = 'Warning';
+                        statusClass = 'background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; border: 2px solid #f59e0b;';
+                        statusIcon = 'fas fa-exclamation-circle';
+                    } else {
+                        status = 'Within Tolerance';
+                        statusClass = 'background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; border: 2px solid #10b981;';
+                        statusIcon = 'fas fa-check-circle';
+                    }
+
+                    modalContent += `
+                        <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e2e8f0;">
+                                <i class="${measurement.icon}" style="color: #0ea5e9; font-size: 1.2rem;"></i>
+                                <h4 style="color: #1e293b; margin: 0; font-size: 1.1rem; font-weight: 600;">${measurement.label}</h4>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+                                    <label style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Sample Value</label>
+                                    <div style="font-size: 1.2rem; font-weight: 700; color: #1e293b; font-family: monospace;">${measurement.value} ${measurement.unit}</div>
+                                </div>
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+                                    <label style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">Standard Value</label>
+                                    <div style="font-size: 1.2rem; font-weight: 700; color: #1e293b; font-family: monospace;">${measurement.standard} ${measurement.unit}</div>
+                                </div>
+                            </div>
+                            <div style="${statusClass} padding: 1rem; border-radius: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
+                                <i class="${statusIcon}" style="font-size: 1.1rem;"></i>
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 0.25rem;">${status}</div>
+                                    <div style="font-size: 0.9rem; font-family: monospace;">
+                                        ${diff > 0 ? '+' : ''}${diffPercent.toFixed(1)}% (${diff > 0 ? '+' : ''}${diff.toFixed(3)} ${measurement.unit})
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                modalContent += `
+                        </div>
+                    </div>
+                `;
+            } else if (item.status === 'OUT') {
+                modalContent += `
+                    <div style="background: linear-gradient(135deg, #fef2f2, #fee2e2); padding: 2rem; border-radius: 1rem; border: 2px solid #f87171; text-align: center;">
+                        <div style="display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: linear-gradient(135deg, #fee2e2, #fecaca); border-radius: 50%; margin: 0 auto 1.5rem; color: #dc2626;">
+                            <i class="fas fa-sign-out-alt" style="font-size: 2rem;"></i>
+                        </div>
+                        <h3 style="color: #991b1b; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">Tool Checked Out</h3>
+                        <p style="color: #7f1d1d; font-size: 1.1rem; margin-bottom: 1.5rem;">This tool has been successfully checked out and is currently in use.</p>
+                        ${item.machine ? `
+                            <div style="display: inline-flex; align-items: center; gap: 0.75rem; padding: 1rem 2rem; background: white; border-radius: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                                <i class="fas fa-cogs" style="color: #dc2626; font-size: 1.2rem;"></i>
+                                <span style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">Currently on Machine ${item.machine}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            modalContent += `
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="action-btn" onclick="closeModal()" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                        <i class="fas fa-times"></i>
+                        Close
+                    </button>
+                </div>
+            `;
+
+            modalBody.innerHTML = modalContent;
+            modal.classList.add('show');
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('detailsModal');
+            modal.classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('detailsModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function updateResultsInfo(count) {
+            const resultsInfo = document.getElementById('results-info');
+            resultsInfo.textContent = `Showing ${count} result${count !== 1 ? 's' : ''}`;
+        }
+
+        // Add more sample data for demonstration
+        const additionalSampleData = [
+            {
+                id: 4,
+                toolId: "T004",
+                toolName: "Connector Assembly Tool",
+                manufacturer: "Amphenol Corporation",
+                status: "IN",
+                conformite: "conforme",
+                date: "2024-01-14",
+                time: "16:20",
+                machine: null,
+                measurements: {
+                    section: 2.4,
+                    crimpingHeight: 1.1,
+                    insulationHeight: 2.0,
+                    crimpingWidth: 3.6,
+                    insulationWidth: 4.1
+                }
+            },
+            {
+                id: 5,
+                toolId: "T005",
+                toolName: "Cable Cutting Tool",
+                manufacturer: "Weidmuller",
+                status: "OUT",
+                conformite: null,
+                date: "2024-01-14",
+                time: "15:10",
+                machine: 3
+            },
+            {
+                id: 6,
+                toolId: "T006",
+                toolName: "Insulation Displacement Tool",
+                manufacturer: "Phoenix Contact",
+                status: "IN",
+                conformite: "non conforme",
+                date: "2024-01-14",
+                time: "14:45",
+                machine: null,
+                measurements: {
+                    section: 3.2,
+                    crimpingHeight: 1.8,
+                    insulationHeight: 2.8,
+                    crimpingWidth: 2.9,
+                    insulationWidth: 4.8
+                }
+            }
+        ];
+
+        // Extend sample data
+        sampleData.push(...additionalSampleData);
+    </script>
+</body>
+</html>

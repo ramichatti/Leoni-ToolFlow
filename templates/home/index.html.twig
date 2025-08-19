@@ -1,0 +1,669 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tool Input/Output{% endblock %}
+
+{% block stylesheets %}
+<style>
+    body {
+        padding-top: 70px;
+        background-color: #f8f9fc;
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .search-container {
+        max-width: 1300px;
+        margin: 2rem auto;
+        padding: 2.5rem;
+        background-color: white;
+        border-radius: 1.25rem;
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .search-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 2rem rgba(18, 38, 63, 0.12);
+    }
+
+    .page-title {
+        color: #1e293b;
+        font-size: 2.25rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1rem;
+        background: linear-gradient(90deg, #1e293b, #475569);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        text-align: center;
+        color: #ef4444;
+        font-style: italic;
+        font-weight: 600;
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .page-subtitle:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 2px;
+        background: linear-gradient(90deg, #ef4444, #f87171);
+    }
+
+    .tool-info {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        display: none;
+        background-color: #f8fafc;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tool-info.show {
+        display: block;
+    }
+
+    .tool-info h4 {
+        color: #1e293b;
+        font-size: 1.35rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e2e8f0;
+        position: relative;
+    }
+
+    .tool-info h4:after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
+
+    .tool-info p {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed #e2e8f0;
+        margin-bottom: 0.5rem;
+    }
+
+    .tool-info p:last-child {
+        border-bottom: none;
+    }
+
+    .tool-info p strong {
+        color: #334155;
+        font-weight: 600;
+        min-width: 150px;
+    }
+
+    .tool-info p span {
+        color: #1e293b;
+        font-weight: 500;
+    }
+
+    .btn-io {
+        width: 150px;
+        margin: 0 0.75rem;
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-io:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 120%;
+        height: 0;
+        padding-bottom: 120%;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        transition: transform 0.5s, opacity 0.3s;
+    }
+
+    .btn-io:active:after {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+        transition: 0s;
+    }
+
+    .btn-io i {
+        margin-right: 0.75rem;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(239, 68, 68, 0.35);
+    }
+
+    .barcode-container {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        padding: 2.5rem 1.5rem;
+        border: 2px dashed #cbd5e1;
+        border-radius: 1rem;
+        background-color: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    .barcode-container:hover {
+        border-color: #94a3b8;
+        background-color: #f1f5f9;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .barcode-container i {
+        font-size: 3.5rem;
+        color: #64748b;
+        margin-bottom: 1.25rem;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .barcode-container h5 {
+        font-size: 1.35rem;
+        color: #334155;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .barcode-container p {
+        color: #64748b;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .or-divider {
+        text-align: center;
+        margin: 2.5rem 0;
+        position: relative;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 45%;
+        height: 1px;
+        background: linear-gradient(to right, #e2e8f0, #cbd5e1);
+    }
+
+    .or-divider::before {
+        left: 0;
+    }
+
+    .or-divider::after {
+        right: 0;
+    }
+
+    .or-divider span {
+        background-color: white;
+        padding: 0 1.5rem;
+        color: #64748b;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #334155;
+        font-size: 1rem;
+        transition: color 0.2s ease;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+        color: #1e293b;
+    }
+
+    .form-control:hover {
+        border-color: #cbd5e1;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        background-color: #fff;
+    }
+
+    .form-group:focus-within label {
+        color: #3b82f6;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        padding: 0.85rem 2.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 120%;
+        height: 0;
+        padding-bottom: 120%;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        transition: transform 0.5s, opacity 0.3s;
+    }
+
+    .btn-primary:active:after {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+        transition: 0s;
+    }
+
+    .loading {
+        display: none;
+        text-align: center;
+        margin: 2rem 0;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .loading.show {
+        display: block;
+    }
+
+    .loading i {
+        color: #3b82f6;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .loading p {
+        margin-top: 1rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .error-message {
+        display: none;
+        color: #ef4444;
+        margin: 1.5rem 0;
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        background-color: #fef2f2;
+        border-left: 5px solid #ef4444;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .error-message.show {
+        display: flex;
+        align-items: center;
+    }
+
+    .error-message:before {
+        content: '\f06a';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 0.75rem;
+        font-size: 1.25rem;
+        color: #ef4444;
+    }
+
+    .alert {
+        margin-top: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        position: relative;
+        animation: alertFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        align-items: center;
+        border-left: 5px solid;
+    }
+
+    .alert i {
+        margin-right: 1rem;
+        font-size: 1.25rem;
+    }
+
+    @keyframes alertFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-success {
+        background-color: #ecfdf5;
+        border-left-color: #10b981;
+        color: #065f46;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .search-container {
+            padding: 1.5rem;
+            margin: 1rem;
+            width: auto;
+        }
+        
+        .barcode-container {
+            padding: 1.5rem 1rem;
+        }
+        
+        .tool-info p {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .tool-info p strong {
+            min-width: auto;
+        }
+        
+        .btn-primary {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'navbar.html.twig' %}
+
+    <div class="container">
+        <div class="search-container">
+            <h2 class="text-center mb-3">Tool Input/Output</h2>
+            <p class="text-center text-danger mb-4" style="font-style: italic; font-weight: 600;">
+                The tool must be accompanied by its samples and its documentation
+            </p>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="tool-info" id="toolInfo">
+                <h4 class="mb-3">Tool Information</h4>
+                <div class="mb-3">
+                    <p><strong>Inventory No.:</strong> <span id="displayToolId"></span></p>
+                    <p><strong>Description:</strong> <span id="displayToolDescription"></span></p>
+                    <p><strong>Manufacturer:</strong> <span id="displayToolManufacturer"></span></p>
+                    <p><strong>Created At:</strong> <span id="displayToolCreatedAt"></span></p>
+                    <p><strong>Created By:</strong> <span id="displayToolCreatedBy"></span></p>
+                </div>
+                {# <div class="text-center">
+                    <button type="button" class="btn btn-success btn-io" onclick="handleIO('in')">
+                        <i class="fas fa-sign-in-alt me-2"></i> IN
+                    </button>
+                    <button type="button" class="btn btn-danger btn-io" onclick="handleIO('out')">
+                        <i class="fas fa-sign-out-alt me-2"></i> OUT
+                    </button>
+                </div> #}
+            </div>
+
+            </br>
+
+            <div class="barcode-container">
+                <i class="fas fa-barcode"></i>
+                <h5>Scan Barcode</h5>
+                <p class="text-muted">Place the barcode in front of the scanner</p>
+            </div>
+
+            <div class="or-divider">
+                <span>or</span>
+            </div>
+
+            <form id="toolSearchForm" class="mb-4">
+                <div class="mb-3">
+                    <label for="toolId" class="form-label">Inventory No.</label>
+                    <input type="text" class="form-control" id="toolId" name="toolId" placeholder="Enter Inventory No." autofocus>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Input/Output</button>
+                </div>
+            </form>
+
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <p class="mt-2">Searching for tool...</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toolSearchForm = document.getElementById('toolSearchForm');
+    const toolInfo = document.getElementById('toolInfo');
+    const loading = document.querySelector('.loading');
+    const errorMessage = document.getElementById('errorMessage');
+    const displayToolId = document.getElementById('displayToolId');
+    const displayToolDescription = document.getElementById('displayToolDescription');
+    const displayToolManufacturer = document.getElementById('displayToolManufacturer');
+    const displayToolCreatedAt = document.getElementById('displayToolCreatedAt');
+    const displayToolCreatedBy = document.getElementById('displayToolCreatedBy');
+
+    let lastScannedCode = '';
+    let scanTimeout;
+
+    function showLoading() {
+        loading.classList.add('show');
+        toolInfo.classList.remove('show');
+        errorMessage.classList.remove('show');
+    }
+
+    function hideLoading() {
+        loading.classList.remove('show');
+    }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add('show');
+        toolInfo.classList.remove('show');
+    }
+
+    function displayToolInfo(tool) {
+        displayToolId.textContent = tool.id;
+        displayToolDescription.textContent = tool.description;
+        displayToolManufacturer.textContent = tool.manufacturer;
+        displayToolCreatedAt.textContent = tool.createdAt;
+        displayToolCreatedBy.textContent = `${tool.createdBy.firstName} ${tool.createdBy.lastName}`;
+        //toolInfo.classList.add('show');
+
+        // Si l'outil existe, naviguer vers la page de détails
+        if (tool.exists) {
+            // Stocker les données de l'outil dans sessionStorage
+            sessionStorage.setItem('currentTool', JSON.stringify(tool));
+            // Rediriger vers la page de détails après un court délai
+            setTimeout(() => {
+                window.location.href = '{{ path('app_tool_details', {'id': '__ID__'}) }}'.replace('__ID__', tool.id);
+            }, 1500);
+        }
+    }
+
+    // Handle form submission
+    toolSearchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const toolId = document.getElementById('toolId').value.trim();
+        
+        if (!toolId) {
+            showError('Please enter an Inventory No.');
+            return;
+        }
+
+        searchTool(toolId);
+    });
+
+    // Function to search for a tool
+    function searchTool(toolId) {
+        showLoading();
+
+        fetch(`/api/tools/${toolId}`)
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    displayToolInfo(data.tool);
+                } else {
+                    showError('Tool not found. Please verify the Inventory No.');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                showError('An error occurred while fetching tool information');
+            });
+    }
+
+    // Handle barcode scanner input
+    document.addEventListener('keydown', function(e) {
+        if (document.activeElement.tagName !== 'INPUT') {
+            clearTimeout(scanTimeout);
+            
+            if (e.key !== 'Enter') {
+                lastScannedCode += e.key;
+                
+                scanTimeout = setTimeout(() => {
+                    if (lastScannedCode) {
+                        document.getElementById('toolId').value = lastScannedCode;
+                        searchTool(lastScannedCode);
+                        lastScannedCode = '';
+                    }
+                }, 100);
+            }
+        }
+    });
+
+    window.handleIO = function(action) {
+        showLoading();
+        const toolId = displayToolId.textContent;
+        
+        fetch('/api/tools/io', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                toolId: toolId,
+                action: action
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                const successMessage = `Tool successfully ${action === 'in' ? 'checked in' : 'checked out'}`;
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success';
+                alertDiv.textContent = successMessage;
+                toolInfo.appendChild(alertDiv);
+                setTimeout(() => alertDiv.remove(), 3000);
+            } else {
+                showError(data.message || 'Operation failed');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            showError('An error occurred while processing the request');
+        });
+    };
+});
+</script>
+{% endblock %} 

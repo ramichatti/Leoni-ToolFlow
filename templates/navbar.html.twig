@@ -1,0 +1,202 @@
+<!-- Top Bar -->
+<div id="topbar">
+    <div class="d-flex align-items-center">
+        <div class="logo-container me-4">
+            <img src="{{ asset('images/Logo.png') }}" alt="Leoni Logo" class="logo-image">
+        </div>
+        <div class="nav-links">
+
+         <a href="{{ path('app_tools') }}" class="nav-link">
+        <i class="fas fa-tools me-2"></i>Tools
+    </a>
+            <div class="dropdown">
+                <a href="#" class="nav-link dropdown-toggle" id="ioDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-exchange-alt me-2"></i>Input/Output
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="ioDropdown">
+                    <li><a class="dropdown-item" href="{{ path('app_home') }}"><i class="fas fa-plus fa-sm fa-fw"></i> Add Operation</a></li>
+                    <li><a class="dropdown-item" href="{{ path('app_io_history_table') }}"><i class="fas fa-history fa-sm fa-fw"></i> My History</a></li>
+                    
+                </ul>
+            </div>
+
+           
+            
+            <div class="dropdown">
+        <a href="#" class="nav-link dropdown-toggle" id="complaintsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-exclamation-circle me-2"></i>Complaints
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="complaintsDropdown">
+            <li><a class="dropdown-item" href="{{ path('app_complaint_new') }}"><i class="fas fa-paper-plane fa-sm fa-fw"></i> Submit Complaint</a></li>
+            <li><a class="dropdown-item" href="{{ path('app_complaints') }}"><i class="fas fa-list fa-sm fa-fw"></i> My Complaints</a></li>
+        </ul>
+    </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center">
+        <div class="dropdown">
+            <div class="user-dropdown" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="avatar">
+                    {{ app.user.firstName|first }}{{ app.user.lastName|first }}
+                </div>
+                <div class="user-info">
+                    <span class="user-name">{{ app.user.firstName }} {{ app.user.lastName }}</span>
+                    <span class="user-role">{{ app.user.roles ? app.user.roles[0]|replace({'ROLE_': '', '_': ' '})|capitalize : 'User' }}</span>
+                </div>
+                <i class="fas fa-chevron-down ms-2 text-muted" style="font-size: 0.8rem;"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="{{ path('app_profile') }}"><i class="fas fa-user fa-sm fa-fw"></i> Profile</a></li>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}"><i class="fas fa-fw fa-cog"></i> Back Office</a></li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt fa-sm fa-fw"></i> Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    #topbar {
+        height: 70px;
+        background-color: white;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1.5rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1050;
+    }
+
+    /* Logo styles */
+    .logo-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .logo-image {
+        height: 200px;
+        object-fit: contain;
+    }
+
+    /* Navigation links styles */
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        height: 70px;
+    }
+
+    .nav-link {
+        color: #5a5a5a;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.35rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        height: 40px;
+    }
+
+    .nav-link:hover,
+    .nav-link.dropdown-toggle:hover {
+        color: #3a3a3a;
+        background-color: #f8f9fc;
+        transform: translateY(-1px);
+    }
+
+    .nav-link.dropdown-toggle::after {
+        margin-left: 0.5rem;
+    }
+
+    .nav-link i {
+        font-size: 1rem;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #5a5a5a;
+        margin-right: 0.75rem;
+    }
+
+    .user-dropdown {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .user-dropdown:hover {
+        background-color: #e9ecef;
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        margin-right: 10px;
+    }
+
+    .user-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #343a40;
+    }
+
+    .user-role {
+        font-size: 0.75rem;
+        color: #3a3a3a;
+        opacity: 0.8;
+    }
+
+    .dropdown-menu {
+        min-width: 15rem;
+        padding: 0.5rem 0;
+        border: none;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        border-radius: 0.35rem;
+    }
+
+    .dropdown-item {
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .dropdown-item:hover {
+        background-color: #e9ecef;
+        color: #5a5a5a;
+    }
+
+    .dropdown-item i {
+        margin-right: 0.5rem;
+        width: 16px;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .user-info {
+            display: none;
+        }
+        .nav-links {
+            display: none;
+        }
+    }
+</style> 

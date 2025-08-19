@@ -1,0 +1,78 @@
+{% for io in ioHistory %}
+<tr>
+    {# Tool ID (Investory No) #}
+    <td>
+        {% if io.tool is defined and io.tool %}
+            <span class="mono">{{ io.tool.id }}</span>
+        {% endif %}
+    </td>
+    {# Description #}
+    {# Description #}
+    <td>{{ io.tool is defined and io.tool and io.tool.description is defined and io.tool.description ? io.tool.description.value : '' }}</td>
+    {# Manufacturer #}
+    <td>{{ io.tool is defined and io.tool and io.tool.manufacturer is defined and io.tool.manufacturer ? io.tool.manufacturer.value : '' }}</td>
+    {# Location is now after Manufacturer #}
+    {# Location (single line, plain text) #}
+    <td>
+        {% set emp = io.tool is defined and io.tool ? (io.tool.emplacement ?? '') : '' %}
+        {% set dnas = io.tool is defined and io.tool ? (io.tool.dnas ?? '') : '' %}
+        {% set arm = io.tool is defined and io.tool ? (io.tool.armoire ?? '') : '' %}
+        {{ [emp, dnas, arm]|filter(v => v is not empty)|join(' - ') }}
+    </td>
+    {# Date #}
+    <td>{{ io.dateEntre ? io.dateEntre|date('Y-m-d H:i') : '' }}</td>
+    <td>
+        {% set st = (io.status is defined and io.status) ? io.status.value : '' %}
+        {% if st %}
+            <span class="badge-status {{ st == 'IN' ? 'in' : (st == 'OUT' ? 'out' : '') }}">{{ st }}</span>
+        {% endif %}
+    </td>
+    <td>
+        {% set wc = io.withCahier ?? '' %}
+        {% if wc is same as(true) or wc is same as(false) %}
+            <span>{{ wc ? 'Yes' : 'No' }}</span>
+        {% elseif wc is not empty %}
+            <span>{{ wc }}</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if io.machine is defined and io.machine is not null and io.machine is not same as('') %}
+            <span>{{ io.machine }}</span>
+        {% endif %}
+    </td>
+    <td>{{ io.section ?? '' }}</td>
+    <td>
+        {% set ch = io.crimpingHeight ?? '' %}
+        {% set cw = io.crimpingWidth ?? '' %}
+        {{ ch }}{% if ch is not empty or cw is not empty %} / {% endif %}{{ cw }}
+    </td>
+    <td>
+        {% set insulH = io.insulationHeight ?? '' %}
+        {% set insulW = io.insulationWidth ?? '' %}
+        {{ insulH }}{% if insulH is not empty and insulW is not empty %} / {% endif %}{{ insulW }}
+    </td>
+    
+    <td>{{ io.measure is defined and io.measure ? io.measure.section : '' }}</td>
+    <td>
+        {% if io.measure is defined and io.measure %}
+            {% set mch = io.measure.crimpingHeight ?? '' %}
+            {% set mcw = io.measure.crimpingWidth ?? '' %}
+            {{ mch }}{% if mch is not empty or mcw is not empty %} / {% endif %}{{ mcw }}
+        {% endif %}
+    </td>
+    <td>
+        {% if io.measure is defined and io.measure %}
+            {% set sampleInsulH = io.measure.insulationHeight ?? '' %}
+            {% set sampleInsulW = io.measure.insulationWidth ?? '' %}
+            {{ sampleInsulH }}{% if sampleInsulH is not empty and sampleInsulW is not empty %} / {% endif %}{{ sampleInsulW }}
+        {% endif %}
+    </td>
+    {# Conformité moved to last #}
+    <td>
+        {% set conf = io.conformite ?? '' %}
+        {% if conf %}
+            <span class="badge-conf {{ conf|lower starts with 'conforme' ? 'conforme' : 'non' }}">{{ conf|upper }}</span>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}

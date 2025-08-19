@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Leoni ToolFlow - Login{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/login.css') }}">
+    <style>
+        .alert {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="session">
+    <div class="left" style="background-color: white; padding: 10px;">
+        <img src="{{ asset('images/Logo.png') }}" alt="Leoni Logo">
+    </div>
+    <form method="post" action="{{ path('app_login') }}" class="log-in" autocomplete="off">
+        <h4>We are <span>Leoni</span></h4>
+        <p>Welcome to ToolFlow ! <br/>Login to your account.</p>
+
+        {% if error %}
+            {% if error.messageKey == 'Votre compte est bloqué. Veuillez contacter l\'administrateur.' %}
+                <div class="alert alert-warning">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% else %}
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+        {% endif %}
+
+        {% for flash_success in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ flash_success }}
+            </div>
+        {% endfor %}
+
+        <div class="floating-label">
+            <input placeholder="ID or Email" type="text" value="{{ last_username }}" name="_username" id="username" autocomplete="off" required autofocus>
+            <label for="username">ID or Email:</label>
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 7c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4zm6 5H6v-.99c.2-.72 3.3-2.01 6-2.01s5.8 1.29 6 2v1z"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="floating-label">
+            <input placeholder="Password" type="password" name="_password" id="password" autocomplete="current-password" required>
+            <label for="password">Password:</label>
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                </svg>
+            </div>
+        </div>
+
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+        <button type="submit">Login</button>
+        
+        <div class="register-link" style="margin-top: 20px; text-align: center; width: 100%;">
+            <p>Forgot your password ?</br>
+            <a href="{{ path('app_reset_password') }}" style="color: var(--primary-color-saturated); text-decoration: none;" onclick="event.preventDefault(); window.location.href='{{ path('app_reset_password') }}';">Reset Password</a></p>
+        </div>
+    </form>
+</div>
+{% endblock %} 

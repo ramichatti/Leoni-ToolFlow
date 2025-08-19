@@ -1,0 +1,411 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My I/O History{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+  /* Page-scoped UI/UX improvements */
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+  body {
+    background: #ffffff;
+    min-height: 100vh;
+    font-family: 'Roboto', system-ui, -apple-system, Segoe UI, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  .page-shell {
+    max-width: 1400px;
+    margin: 6rem auto 2rem;
+    padding: 0 1rem;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 1.5rem;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .filters-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
+  }
+
+  .filters-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  @media (max-width: 1200px) {
+    .filters-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .filters-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .loading-indicator {
+    display: none;
+    gap: 0.5rem;
+    align-items: center;
+    color: #4b5563;
+  }
+
+  .loading-indicator.show {
+    display: inline-flex;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #cbd5e1;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .table-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+  }
+
+  /* Table polish */
+  .table thead th {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    z-index: 1;
+    box-shadow: inset 0 -1px 0 #e5e7eb;
+    white-space: nowrap;
+  }
+
+  .table tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+
+  .table tbody tr:hover {
+    background-color: #f3f6fb;
+  }
+
+  .table td,
+  .table th {
+    vertical-align: middle;
+  }
+
+  .table td {
+    height: 44px;
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+
+  /* Column width + ellipsis for long text */
+  .col-id {
+    width: 140px;
+    white-space: nowrap;
+  }
+
+  .col-desc,
+  .col-loc,
+  .col-manu {
+    max-width: 260px;
+  }
+
+  .truncate {
+    max-width: 100%;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+
+  /* Badges/Chips */
+  .badge-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+
+  .badge-status.in {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .badge-status.out {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .badge-conf {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.8rem;
+  }
+
+  .badge-conf.conforme {
+    background: #dbeafe;
+    color: #1e3a8a;
+  }
+
+  .badge-conf.non {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    background: #f9fafb;
+  }
+
+  .badge-machine {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+    font-weight: 600;
+  }
+  .badge-conf.conforme { background:#dbeafe; color:#1e3a8a; }
+  .badge-conf.non { background:#fee2e2; color:#991b1b; }
+  .chip { display:inline-flex; align-items:center; padding:.2rem .5rem; border-radius:999px; font-weight:600; font-size:.78rem; border:1px solid #e5e7eb; color:#374151; background:#f9fafb; }
+  .badge-machine { display:inline-flex; align-items:center; gap:.25rem; padding:.2rem .5rem; border-radius:.5rem; background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-weight:600; }
+
+  /* Filters collapse */
+  .filters-wrapper.filters-collapsed { display: none; }
+  .filters-card-header { display:flex; align-items:center; justify-content: space-between; margin-bottom:.5rem; }
+  .filters-title { display:flex; align-items:center; gap:.5rem; font-weight:700; color:#374151; }
+  .filters-toggle-icon { font-size: 1rem; line-height:1; }
+
+  /* Inputs focus */
+  .filters-card .form-control, .filters-card .form-select {
+    transition: box-shadow .2s ease, border-color .2s ease;
+  }
+  .filters-card .form-control:focus, .filters-card .form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99,102,241,0.15);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'navbar.html.twig' %}
+
+    <div class="page-shell">
+        <div class="page-header">
+            <h1 class="h4 m-0">My I/O History</h1>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted me-2">Results:</span>
+                <span class="badge text-bg-primary">{{ ioHistory|length }}</span>
+                <span id="loading" class="loading-indicator ms-3"><span class="spinner"></span> Loading…</span>
+            </div>
+        </div>
+
+        <div id="filters-wrapper" class="filters-wrapper">
+        <form id="filters-form" method="get" action="{{ path('app_io_history_table') }}" class="filters-card">
+            <div id="filters-toggle" class="filters-card-header" role="button" aria-expanded="true">
+                <div class="filters-title">
+                    <span id="filters-icon" class="filters-toggle-icon">▾</span>
+                    <span>Filters</span>
+                </div>
+                <span class="text-muted" style="font-size:.9rem;">Search is dynamic</span>
+            </div>
+            <div class="filters-grid">
+            <div>
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">-- any --</option>
+                    <option value="IN" {{ (filters.status ?? '') == 'IN' ? 'selected' : '' }}>IN</option>
+                    <option value="OUT" {{ (filters.status ?? '') == 'OUT' ? 'selected' : '' }}>OUT</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Conformité</label>
+                <select name="conformite" class="form-select">
+                    <option value="">-- any --</option>
+                    <option value="conforme" {{ (filters.conformite ?? '') == 'conforme' ? 'selected' : '' }}>Conforme</option>
+                    <option value="non conforme" {{ (filters.conformite ?? '') == 'non conforme' ? 'selected' : '' }}>Non Conforme</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Tool ID contains</label>
+                <input type="text" name="toolId" value="{{ filters.toolId ?? '' }}" class="form-control" placeholder="e.g. T123" />
+            </div>
+            <div>
+                <label class="form-label">DNAS</label>
+                <input type="text" name="dnas" value="{{ filters.dnas ?? '' }}" class="form-control" placeholder="Search DNAS" />
+            </div>
+            <div>
+                <label class="form-label">Emplacement</label>
+                <input type="text" name="emplacement" value="{{ filters.emplacement ?? '' }}" class="form-control" placeholder="Search Emplacement" />
+            </div>
+            <div>
+                <label class="form-label">Armoire</label>
+                <input type="text" name="armoire" value="{{ filters.armoire ?? '' }}" class="form-control" placeholder="Search Armoire" />
+            </div>
+            <div>
+                <label class="form-label">Machine</label>
+                <input type="number" name="machine" value="{{ filters.machine ?? '' }}" class="form-control" />
+            </div>
+            <div>
+                <label class="form-label">With Cahier</label>
+                <select name="withCahier" class="form-select">
+                    <option value="">-- any --</option>
+                    <option value="1" {{ (filters.withCahier ?? '') == '1' ? 'selected' : '' }}>Yes</option>
+                    <option value="0" {{ (filters.withCahier ?? '') == '0' ? 'selected' : '' }}>No</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Date From</label>
+                <input type="date" name="dateFrom" value="{{ filters.dateFrom ?? '' }}" class="form-control" />
+            </div>
+            <div>
+                <label class="form-label">Date To</label>
+                <input type="date" name="dateTo" value="{{ filters.dateTo ?? '' }}" class="form-control" />
+            </div>
+            <div style="grid-column: span 6; display: flex; gap: .5rem; justify-content: flex-end;">
+                <a class="btn btn-secondary" href="{{ path('app_io_history_table') }}">Reset</a>
+            </div>
+            </div>
+        </form>
+        </div>
+
+        {% if ioHistory is empty %}
+            <p>No operations found.</p>
+        {% else %}
+            <div class="table-card">
+                <div style="overflow: auto;">
+                <table class="table table-hover align-middle mb-0" style="font-size: 0.92rem;">
+                    <thead>
+                        <tr>
+                            <th>Investory No</th>
+                            <th>Description</th>
+                            <th>Manufacturer</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Cahier</th>
+                            <th>Machine</th>
+                            <th>Section</th>
+                            <th>Crimp H/W</th>
+                            <th>Insul H/W</th>
+                            <th>S.Section</th>
+                            <th>S.Crimp H/W</th>
+                            <th>S.Insul H/W</th>
+                            <th>Conformité</th>
+                        </tr>
+                    </thead>
+                    <tbody id="io-table-body">
+                        {% include 'io/_history_table_rows.html.twig' with { ioHistory: ioHistory } %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('filters-form');
+  const tbody = document.getElementById('io-table-body');
+  const loading = document.getElementById('loading');
+  const filtersWrapper = document.getElementById('filters-wrapper');
+  const filtersToggle = document.getElementById('filters-toggle');
+  const filtersIcon = document.getElementById('filters-icon');
+
+  const doSearch = () => {
+    const params = new URLSearchParams(new FormData(form));
+    loading?.classList.add('show');
+    fetch(`${form.action}?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+      .then(r => r.text())
+      .then(html => { tbody.innerHTML = html; })
+      .catch(() => {})
+      .finally(() => { loading?.classList.remove('show'); });
+  };
+
+  // Auto apply on change
+  form.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('change', doSearch);
+    if (el.tagName === 'INPUT' && el.type === 'text') {
+      let t;
+      el.addEventListener('input', () => { clearTimeout(t); t = setTimeout(doSearch, 300); });
+    }
+  });
+
+  // Prevent full submit
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    doSearch();
+  });
+
+  // Filters show/hide with persistence
+  const KEY = 'io_history_filters_collapsed';
+  const applyFiltersState = (collapsed) => {
+    const grid = form.querySelector('.filters-grid');
+    if (collapsed) {
+      grid.style.display = 'none';
+      form.setAttribute('aria-hidden', 'true');
+      filtersToggle.setAttribute('aria-expanded', 'false');
+      if (filtersIcon) filtersIcon.textContent = '▴';
+    } else {
+      grid.style.display = '';
+      form.removeAttribute('aria-hidden');
+      filtersToggle.setAttribute('aria-expanded', 'true');
+      if (filtersIcon) filtersIcon.textContent = '▾';
+    }
+  };
+
+  let collapsed = localStorage.getItem(KEY) === '1';
+  applyFiltersState(collapsed);
+
+  filtersToggle.addEventListener('click', () => {
+    collapsed = !collapsed;
+    localStorage.setItem(KEY, collapsed ? '1' : '0');
+    applyFiltersState(collapsed);
+  });
+});
+</script>
+{% endblock %}

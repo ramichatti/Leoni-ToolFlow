@@ -1,0 +1,717 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .user-header {
+            background-color: #f8f9fc;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .user-header h1 {
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: #5a5a5a;
+        }
+        
+        .user-header p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+        
+        .btn-back {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.2s;
+            background-color: #e9ecef;
+            color: #5a5a5a;
+            border: none;
+        }
+        
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            background-color: #dee2e6;
+        }
+        
+        .btn-back i {
+            margin-right: 0.5rem;
+        }
+        
+        .form-container {
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .form-header {
+            background-color: #f8f9fc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .form-header h5 {
+            margin-bottom: 0;
+            font-weight: 700;
+            color: #5a5a5a;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-header h5 i {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .user-status {
+            display: inline-block;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 2rem;
+        }
+        
+        .user-status.active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .form-body {
+            padding: 1.5rem;
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+        }
+        
+        .form-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .form-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #5a5a5a;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-section-title i {
+            margin-right: 0.75rem;
+            color: #5a5a5a;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #5a5a5a;
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            border: 1px solid #d1d3e2;
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus {
+            border-color: #a1a8c3;
+            box-shadow: 0 0 0 0.2rem rgba(90, 90, 90, 0.15);
+        }
+        
+        .form-select {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            border: 1px solid #d1d3e2;
+            transition: all 0.2s;
+        }
+        
+        .form-select:focus {
+            border-color: #a1a8c3;
+            box-shadow: 0 0 0 0.2rem rgba(90, 90, 90, 0.15);
+        }
+        
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        
+        .is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .user-id-display {
+            background-color: #f8f9fc;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d3e2;
+            font-weight: 600;
+            color: #5a5a5a;
+            font-family: monospace;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-id-display i {
+            margin-right: 0.75rem;
+            color: #6c757d;
+        }
+        
+        .form-footer {
+            background-color: #f8f9fc;
+            padding: 1.5rem;
+            border-top: 1px solid #e3e6f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn-submit {
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.2s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-submit i {
+            margin-right: 0.75rem;
+        }
+        
+        .btn-danger-soft {
+            background-color: #f8d7da;
+            color: #842029;
+            border: none;
+        }
+        
+        .btn-danger-soft:hover {
+            background-color: #f5c2c7;
+            color: #842029;
+        }
+        
+        .btn-success-soft {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: none;
+        }
+        
+        .btn-success-soft:hover {
+            background-color: #badbcc;
+            color: #0f5132;
+        }
+        
+        .form-text {
+            color: #6c757d;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fc;
+            border-color: #d1d3e2;
+            color: #5a5a5a;
+        }
+        
+        .user-avatar-edit {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 2rem;
+            color: #5a5a5a;
+            margin: 0 auto 1.5rem;
+        }
+        
+        /* Style pour utilisateur bloqué */
+        .user-avatar-edit.blocked {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        
+        .blocked-banner {
+            background-color: #f8d7da;
+            color: #842029;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .blocked-banner i {
+            margin-right: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Styles pour les notifications AJAX */
+        .ajax-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        
+        .ajax-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .ajax-notification.success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border-left: 4px solid #0f5132;
+        }
+        
+        .ajax-notification.error {
+            background-color: #f8d7da;
+            color: #842029;
+            border-left: 4px solid #842029;
+        }
+        
+        .ajax-notification.warning {
+            background-color: #fff3cd;
+            color: #664d03;
+            border-left: 4px solid #664d03;
+        }
+        
+        /* Style pour les boutons avec spinner */
+        .btn-with-spinner {
+            position: relative;
+        }
+        
+        .btn-with-spinner .spinner-border {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -0.5rem;
+            margin-left: -0.5rem;
+            display: none;
+        }
+        
+        .btn-with-spinner.loading .spinner-border {
+            display: block;
+        }
+        
+        .btn-with-spinner.loading span {
+            visibility: hidden;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="user-header d-sm-flex align-items-center justify-content-between">
+            <div>
+                <h1>Edit User</h1>
+                <p>Update user information and permissions</p>
+                <br/>
+            </div>
+            <a href="{{ path('app_admin_users') }}" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Users
+            </a>
+        </div>
+        
+        <!-- Notification pour les actions AJAX -->
+        <div id="ajaxNotification" class="ajax-notification"></div>
+        
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h5><i class="fas fa-user-edit"></i> Edit User Profile</h5>
+                        <span id="userStatusBadge" class="user-status {% if user.isBlocked %}bg-danger text-white{% else %}active{% endif %}">
+                            {% if user.isBlocked %}Blocked{% else %}Active{% endif %}
+                        </span>
+                    </div>
+                    
+                    {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+                    
+                    <div class="form-body">
+                        <!-- User Avatar -->
+                        <div class="text-center">
+                            <div id="userAvatar" class="user-avatar-edit {% if user.isBlocked %}blocked{% endif %}">
+                                {{ user.firstName|slice(0, 1)|upper }}{{ user.lastName|slice(0, 1)|upper }}
+                            </div>
+                            
+                            <div id="blockedBanner" class="blocked-banner {% if not user.isBlocked %}d-none{% endif %}">
+                                <i class="fas fa-ban"></i> This user account is blocked and cannot log in
+                            </div>
+                        </div>
+                        
+                        <!-- Account Information -->
+                        <div class="form-section">
+                            <h6 class="form-section-title">
+                                <i class="fas fa-user-circle"></i> Account Information
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">User ID</label>
+                                        <div class="user-id-display">
+                                            <i class="fas fa-id-card"></i> {{ user.id }}
+                                        </div>
+                                        {{ form_widget(form.id, {'attr': {'class': 'd-none'}}) }}
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            {{ form_widget(form.email, {'attr': {'class': 'form-control' ~ (form.email.vars.valid ? '' : ' is-invalid')}}) }}
+                                        </div>
+                                        {{ form_errors(form.email) }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        {{ form_label(form.plainPassword, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                            {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control' ~ (form.plainPassword.vars.valid ? '' : ' is-invalid')}}) }}
+                                        </div>
+                                        <div class="form-text">Leave blank to keep the current password.</div>
+                                        {{ form_errors(form.plainPassword) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Personal Information -->
+                        <div class="form-section">
+                            <h6 class="form-section-title">
+                                <i class="fas fa-address-card"></i> Personal Information
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(form.firstName, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            {{ form_widget(form.firstName, {'attr': {'class': 'form-control' ~ (form.firstName.vars.valid ? '' : ' is-invalid')}}) }}
+                                        </div>
+                                        {{ form_errors(form.firstName) }}
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(form.lastName, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            {{ form_widget(form.lastName, {'attr': {'class': 'form-control' ~ (form.lastName.vars.valid ? '' : ' is-invalid')}}) }}
+                                        </div>
+                                        {{ form_errors(form.lastName) }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(form.tel, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            {{ form_widget(form.tel, {'attr': {'class': 'form-control' ~ (form.tel.vars.valid ? '' : ' is-invalid')}}) }}
+                                        </div>
+                                        {{ form_errors(form.tel) }}
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(form.address, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                            {{ form_widget(form.address, {'attr': {'class': 'form-control' ~ (form.address.vars.valid ? '' : ' is-invalid')}}) }}
+                                        </div>
+                                        {{ form_errors(form.address) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Role Information -->
+                        <div class="form-section">
+                            <h6 class="form-section-title">
+                                <i class="fas fa-user-shield"></i> Role & Permissions
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form_label(form.role, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-shield-alt"></i></span>
+                                            {{ form_widget(form.role, {'attr': {'class': 'form-select' ~ (form.role.vars.valid ? '' : ' is-invalid')}}) }}
+                                        </div>
+                                        {{ form_errors(form.role) }}
+                                        <div class="form-text">Changing user role will affect their permissions in the system.</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Account Status</label>
+                                        <div class="d-flex align-items-center mt-2">
+                                            {% if not user.isBlocked %}
+                                                <button type="button" id="blockUserBtn" class="btn btn-danger-soft btn-with-spinner" data-user-id="{{ user.id }}">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                    <span><i class="fas fa-ban"></i> Block Account</span>
+                                                </button>
+                                            {% else %}
+                                                <button type="button" id="unblockUserBtn" class="btn btn-success-soft btn-with-spinner" data-user-id="{{ user.id }}">
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                    <span><i class="fas fa-unlock"></i> Unblock Account</span>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <a href="{{ path('app_admin_users') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-save"></i> Update User
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const blockUserBtn = document.getElementById('blockUserBtn');
+            const unblockUserBtn = document.getElementById('unblockUserBtn');
+            const csrfToken = '{{ csrf_token('') }}';
+            
+            // Fonction pour afficher une notification
+            function showNotification(message, type) {
+                const notification = document.getElementById('ajaxNotification');
+                notification.textContent = message;
+                notification.className = 'ajax-notification ' + type;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Fonction pour mettre à jour l'interface après blocage/déblocage
+            function updateUI(isBlocked) {
+                const userStatusBadge = document.getElementById('userStatusBadge');
+                const userAvatar = document.getElementById('userAvatar');
+                const blockedBanner = document.getElementById('blockedBanner');
+                
+                if (isBlocked) {
+                    // Mettre à jour pour utilisateur bloqué
+                    userStatusBadge.textContent = 'Blocked';
+                    userStatusBadge.className = 'user-status bg-danger text-white';
+                    userAvatar.classList.add('blocked');
+                    blockedBanner.classList.remove('d-none');
+                    
+                    // Remplacer le bouton de blocage par le bouton de déblocage
+                    const blockBtnContainer = document.querySelector('.d-flex.align-items-center.mt-2');
+                    blockBtnContainer.innerHTML = `
+                        <button type="button" id="unblockUserBtn" class="btn btn-success-soft btn-with-spinner" data-user-id="{{ user.id }}">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span><i class="fas fa-unlock"></i> Unblock Account</span>
+                        </button>
+                    `;
+                    
+                    // Réattacher l'événement au nouveau bouton
+                    document.getElementById('unblockUserBtn').addEventListener('click', handleUnblockClick);
+                } else {
+                    // Mettre à jour pour utilisateur actif
+                    userStatusBadge.textContent = 'Active';
+                    userStatusBadge.className = 'user-status active';
+                    userAvatar.classList.remove('blocked');
+                    blockedBanner.classList.add('d-none');
+                    
+                    // Remplacer le bouton de déblocage par le bouton de blocage
+                    const unblockBtnContainer = document.querySelector('.d-flex.align-items-center.mt-2');
+                    unblockBtnContainer.innerHTML = `
+                        <button type="button" id="blockUserBtn" class="btn btn-danger-soft btn-with-spinner" data-user-id="{{ user.id }}">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span><i class="fas fa-ban"></i> Block Account</span>
+                        </button>
+                    `;
+                    
+                    // Réattacher l'événement au nouveau bouton
+                    document.getElementById('blockUserBtn').addEventListener('click', handleBlockClick);
+                }
+            }
+            
+            // Fonction pour bloquer un utilisateur
+            function handleBlockClick(e) {
+                if (!confirm('Are you sure you want to block this user? They will no longer be able to log in.')) {
+                    return;
+                }
+                
+                const button = e.currentTarget;
+                const userId = button.dataset.userId;
+                
+                // Ajouter la classe loading pour afficher le spinner
+                button.classList.add('loading');
+                
+                // Créer le token CSRF pour cette action
+                const blockToken = '{{ csrf_token('block' ~ user.id) }}';
+                
+                fetch(`/admin/users/${userId}/block`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `_token=${blockToken}`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    button.classList.remove('loading');
+                    
+                    if (data.success) {
+                        showNotification(data.message || 'User has been blocked successfully.', 'warning');
+                        updateUI(true);
+                    } else {
+                        showNotification(data.message || 'Failed to block user.', 'error');
+                    }
+                })
+                .catch(error => {
+                    button.classList.remove('loading');
+                    showNotification('An error occurred while blocking the user.', 'error');
+                    console.error('Error:', error);
+                });
+            }
+            
+            // Fonction pour débloquer un utilisateur
+            function handleUnblockClick(e) {
+                if (!confirm('Are you sure you want to unblock this user? They will be able to log in again.')) {
+                    return;
+                }
+                
+                const button = e.currentTarget;
+                const userId = button.dataset.userId;
+                
+                // Ajouter la classe loading pour afficher le spinner
+                button.classList.add('loading');
+                
+                // Créer le token CSRF pour cette action
+                const unblockToken = '{{ csrf_token('unblock' ~ user.id) }}';
+                
+                fetch(`/admin/users/${userId}/unblock`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `_token=${unblockToken}`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    button.classList.remove('loading');
+                    
+                    if (data.success) {
+                        showNotification(data.message || 'User has been unblocked successfully.', 'success');
+                        updateUI(false);
+                    } else {
+                        showNotification(data.message || 'Failed to unblock user.', 'error');
+                    }
+                })
+                .catch(error => {
+                    button.classList.remove('loading');
+                    showNotification('An error occurred while unblocking the user.', 'error');
+                    console.error('Error:', error);
+                });
+            }
+            
+            // Attacher les événements aux boutons
+            if (blockUserBtn) {
+                blockUserBtn.addEventListener('click', handleBlockClick);
+            }
+            
+            if (unblockUserBtn) {
+                unblockUserBtn.addEventListener('click', handleUnblockClick);
+            }
+        });
+    </script>
+{% endblock %} 

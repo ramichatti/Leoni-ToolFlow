@@ -1,0 +1,732 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tool Details - {{ tool.id }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    body {
+        padding-top: 70px;
+        background-color: #f8f9fc;
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .details-container {
+        max-width: 1000px;
+        margin: 1.5rem auto;
+        padding: 1.75rem;
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .tool-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f2f5;
+    }
+
+    .tool-header h2 {
+        color: #2c3e50;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .tool-id {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+        font-weight: 500;
+    }
+
+    .card {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background: #f8f9fc;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .data-item {
+        background-color: #f8f9fc;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .data-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        border-color: #d1d5db;
+    }
+
+    .data-item h4 {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .data-item p {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.5rem 1.25rem;
+        background-color: #f8f9fc;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .radio-option:hover {
+        background-color: #e9ecef;
+    }
+
+    .radio-option.selected {
+        background-color: #e8f4ff;
+        border-color: #90cdf4;
+    }
+
+    .radio-option input {
+        margin-right: 0.5rem;
+        width: 16px;
+        height: 16px;
+    }
+
+    .radio-option span {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1.25rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.6rem 2rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .btn-back {
+        background-color: #f8f9fc;
+        color: #5a5a5a;
+        border: 1px solid #dee2e6;
+    }
+
+    .btn-back:hover {
+        background-color: #e9ecef;
+        color: #2c3e50;
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background-color: #22c55e;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: #16a34a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-danger {
+        background-color: #ef4444;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #dc2626;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    /* Notification styles */
+    .notification-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        pointer-events: none;
+    }
+
+    .notification {
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        animation: fadeInUp 0.4s ease-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .notification-success {
+        background-color: #dcfce7;
+        border-left: 4px solid #16a34a;
+        color: #166534;
+    }
+
+    .notification-error {
+        background-color: #fee2e2;
+        border-left: 4px solid #dc2626;
+        color: #b91c1c;
+    }
+
+    .notification-info {
+        background-color: #f0f9ff;
+        border-left: 4px solid #0284c7;
+        color: #0369a1;
+    }
+
+    .notification i {
+        margin-right: 10px;
+        font-size: 1.25rem;
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        width: 90%;
+        max-width: 450px;
+        height: auto;
+        min-height: 250px;
+        max-height: 90vh;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        z-index: 1001;
+        animation: zoomIn 0.3s ease-out;
+        overflow: hidden;
+        flex-direction: column;
+    }
+
+    @keyframes zoomIn {
+        from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+        to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+        background-color: #f8f9fc;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        position: relative;
+    }
+
+    .modal-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+        text-align: center;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+        text-align: center;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .modal-message {
+        font-size: 1.05rem;
+        color: #4b5563;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .modal-input-group {
+        margin-top: 1rem;
+        text-align: left;
+    }
+
+    .modal-input-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+    .modal-input-group input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .modal-input-group input:focus {
+        outline: none;
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    }
+
+    .error-message {
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: none;
+    }
+
+    .modal-footer {
+        display: flex;
+        border-top: 1px solid #f3f4f6;
+        margin-top: auto;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 0.85rem 0.5rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .modal-btn-cancel {
+        color: #6b7280;
+        border-right: 1px solid #f3f4f6;
+    }
+
+    .modal-btn-cancel:hover {
+        background-color: #f9fafb;
+    }
+
+    .modal-btn-confirm {
+        color: #ef4444;
+        font-weight: 600;
+    }
+
+    .modal-btn-confirm:hover {
+        background-color: #fef2f2;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'navbar.html.twig' %}
+
+    <div class="container">
+        <div class="details-container">
+            <div class="tool-header">
+                <div>
+                    <h2>Tool Details</h2>
+                    <div class="tool-id">Inventory No.: {{ tool.id }}</div>
+                </div>
+            </div>
+
+            <!-- Tool Information Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Tool Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <h4>Description</h4>
+                            <p>{{ tool.description.value }}</p>
+                        </div>
+                        <div class="data-item">
+                            <h4>Manufacturer</h4>
+                            <p>{{ tool.manufacturer.value }}</p>
+                        </div>
+                        <div class="data-item">
+                            <h4>Last Machine</h4>
+                            {% if tool.ios is defined %}
+                                {% set lastIO = tool.ios|last %}
+                                <p>{{ lastIO is null or lastIO.machine is null ? 'N/A' : lastIO.machine }}</p>
+                            {% else %}
+                                <p>N/A</p>
+                            {% endif %}
+                        </div>
+                        <div class="data-item">
+                            <h4>Availability</h4>
+                            {% if tool.ios is defined %}
+                                {% set lastIO = tool.ios|last %}
+                                {% if lastIO is null %}
+                                    <p style="color: #22c55e;">Available</p>
+                                {% elseif lastIO.status.value == 'OUT' %}
+                                    <p style="color: #ef4444;">Unavailable</p>
+                                {% else %}
+                                    <p style="color: #22c55e;">Available</p>
+                                {% endif %}
+                            {% else %}
+                                <p style="color: #22c55e;">Available</p>
+                            {% endif %}
+                        </div>
+                        <div class="data-item">
+                            <h4>Last With Cahier</h4>
+                            {% if tool.ios is defined %}
+                                {% set lastIO = tool.ios|last %}
+                                <p>{{ lastIO is null or lastIO.withCahier is null ? 'Yes' : lastIO.withCahier }}</p>
+                            {% else %}
+                                <p>Yes</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operation Options Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Operation Options</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>With Cahier</label>
+                        <div class="radio-group">
+                            <label class="radio-option" id="radioYes">
+                                <input type="radio" name="withCahier" value="yes" id="withCahierYes" checked> 
+                                <span>Yes</span>
+                            </label>
+                            <label class="radio-option" id="radioNo">
+                                <input type="radio" name="withCahier" value="no" id="withCahierNo"> 
+                                <span>No</span>
+                            </label>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="btn btn-back" onclick="window.location.href='{{ path('app_home') }}'">
+                    <i class="fas fa-arrow-left"></i>Back
+                </button>
+                <button type="button" class="btn btn-success" onclick="handleIO('in')">
+                    <i class="fas fa-sign-in-alt"></i>IN
+                </button>
+                        <button type="button" class="btn btn-danger" id="outButton">
+                    <i class="fas fa-sign-out-alt"></i>OUT
+                </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-header">
+            <h4 class="modal-title">Check Out Tool #{{ tool.id }}</h4>
+        </div>
+        <div class="modal-body">
+            <p class="modal-message">
+                Are you sure you want to check out tool <br/><strong>{{ tool.id }}</strong> ?
+            </p>
+            <div class="modal-input-group">
+                <label for="machineNumber">Machine Number <span style="color: #ef4444;">*</span></label>
+                <input type="number" id="machineNumber" min="1" required placeholder="Enter machine number">
+                <div id="machineError" class="error-message">Please enter a valid machine number</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="hideConfirmModal()">
+                Cancel
+            </button>
+            <button type="button" class="modal-btn modal-btn-confirm" onclick="handleIO('out')">
+                Check Out
+            </button>
+        </div>
+    </div>
+    <div id="modalOverlay" class="modal-overlay" onclick="hideConfirmModal()"></div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Radio button styling
+    const radioYes = document.getElementById('radioYes');
+    const radioNo = document.getElementById('radioNo');
+    const withCahierYes = document.getElementById('withCahierYes');
+    const withCahierNo = document.getElementById('withCahierNo');
+
+    // Set initial selected state
+    if (withCahierYes.checked) {
+        radioYes.classList.add('selected');
+                } else {
+        radioNo.classList.add('selected');
+    }
+
+    // Add event listeners for radio buttons
+    withCahierYes.addEventListener('change', function() {
+        if (this.checked) {
+            radioYes.classList.add('selected');
+            radioNo.classList.remove('selected');
+        }
+    });
+
+    withCahierNo.addEventListener('change', function() {
+        if (this.checked) {
+            radioNo.classList.add('selected');
+            radioYes.classList.remove('selected');
+        }
+    });
+
+    // Click handler for the radio option labels
+    radioYes.addEventListener('click', function() {
+        withCahierYes.checked = true;
+        radioYes.classList.add('selected');
+        radioNo.classList.remove('selected');
+    });
+
+    radioNo.addEventListener('click', function() {
+        withCahierNo.checked = true;
+        radioNo.classList.add('selected');
+        radioYes.classList.remove('selected');
+    });
+
+    // Add event listener for OUT button to show modal
+    document.getElementById('outButton').addEventListener('click', function() {
+        showConfirmModal();
+    });
+
+    // Add event listener for machine number input to clear error on input
+    const machineNumberInput = document.getElementById('machineNumber');
+    machineNumberInput.addEventListener('input', function() {
+        document.getElementById('machineError').style.display = 'none';
+    });
+    
+    // Function to show notifications
+    function showNotification(message, type) {
+        const notificationContainer = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        let icon = 'info-circle';
+        if (type === 'success') icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+        
+        notification.innerHTML = `<i class="fas fa-${icon}"></i>${message}`;
+        notificationContainer.appendChild(notification);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+            notification.style.transition = 'all 0.3s ease';
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    // IO handling code
+    window.handleIO = function(action) {
+        const withCahier = document.getElementById('withCahierYes').checked ? 'yes' : 'no';
+        
+        if (action === 'in') {
+            // For IN operations, we need to redirect to the form to select a measure
+            window.location.href = `{{ path('app_io_form', {'toolId': tool.id, 'action': 'in', 'measureId': 0}) }}?withCahier=${withCahier}`;
+        } else {
+            // For OUT operations, validate machine number first
+            const machineNumber = document.getElementById('machineNumber').value;
+            const machineError = document.getElementById('machineError');
+            
+            if (!machineNumber || isNaN(machineNumber) || parseInt(machineNumber) <= 0) {
+                machineError.style.display = 'block';
+                return;
+            }
+            
+            // Hide error message if validation passes
+            machineError.style.display = 'none';
+            
+            // Hide modal if it's open
+            hideConfirmModal();
+            
+            // Show loading notification
+            showNotification('Processing your request...', 'info');
+            
+            // For OUT operations, create a direct submission with withCahier value and machine number
+            const formData = {
+                toolId: '{{ tool.id }}',
+                action: 'OUT',
+                with_cahier: withCahier,
+                machine: parseInt(machineNumber)
+            };
+
+            // Submit data for OUT operation
+            fetch('{{ path('app_io_submit') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success notification
+                    showNotification(data.message, 'success');
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = '{{ path('app_home') }}';
+                    }, 2000);
+                } else {
+                    // Show error notification
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Show error notification
+                showNotification('An error occurred while processing your request', 'error');
+            });
+        }
+    };
+
+    // Modal functions
+    window.showConfirmModal = function() {
+        const modal = document.getElementById('confirmModal');
+        modal.style.display = 'flex';
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        
+        // Clear any previous input and errors
+        document.getElementById('machineNumber').value = '';
+        document.getElementById('machineError').style.display = 'none';
+        
+        // Focus on the machine number input
+        setTimeout(() => {
+            document.getElementById('machineNumber').focus();
+        }, 300);
+    };
+
+    window.hideConfirmModal = function() {
+        document.getElementById('confirmModal').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Re-enable scrolling
+    };
+    
+    // Close modal when Escape key is pressed
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            hideConfirmModal();
+        }
+    });
+    
+    // Allow Enter key to submit the form when in machine number input
+    document.getElementById('machineNumber').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            handleIO('out');
+        }
+    });
+});
+</script>
+{% endblock %} 

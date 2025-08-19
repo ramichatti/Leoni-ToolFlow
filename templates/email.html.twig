@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Processed - LEONI ToolFlow</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #002B5C 0%, #1976d2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            z-index: 1;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .description {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+        .cta-section {
+            text-align: center;
+            margin: 35px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #002B5C 0%, #1976d2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .footer-copyright {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .footer-timestamp {
+            color: #bbb;
+            font-size: 11px;
+        }
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+            margin: 30px 0;
+        }
+        @media (max-width: 600px) {
+            .email-container { margin: 10px; border-radius: 12px; }
+            .header, .content, .footer { padding: 20px; }
+            .logo { font-size: 28px; }
+            .title { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">LEONI</div>
+            <div class="title">Complaint Processed</div>
+            <div class="subtitle">ToolFlow Support</div>
+        </div>
+        <div class="content">
+            <div class="greeting">Hello{{ firstName ? ' ' ~ firstName : '' }},</div>
+            <div class="description">
+                <strong>Subject:</strong> {{ subject }}<br><br>
+                We are writing to inform you that your complaint has been <strong>processed</strong> by our support team.<br>
+                Please log in to your account to view the details and our response.<br><br>
+                Thank you for helping us improve our service!
+            </div>
+            <div class="divider"></div>
+            <div class="cta-section">
+                <a href="{{ loginUrl|default('') }}" class="cta-button">
+                    Log in to your account
+                </a>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer-text">
+                This is an automated message from LEONI ToolFlow. Please do not reply to this email.
+            </div>
+            <div class="footer-copyright">
+                &copy; {{ "now"|date("Y") }} LEONI. All rights reserved.
+            </div>
+            <div class="footer-timestamp">
+                Sent on {{ "now"|date("F j, Y, g:i a") }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

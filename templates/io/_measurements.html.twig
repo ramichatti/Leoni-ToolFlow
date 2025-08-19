@@ -1,0 +1,207 @@
+<style>
+    .io-info-container {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    
+    .io-info-section {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .io-info-section:last-child {
+        border-bottom: none;
+    }
+    
+    .io-info-section h4 {
+        color: #1e293b;
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f1f5f9;
+        position: relative;
+    }
+    
+    .io-info-section h4:after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
+    
+    .io-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+    }
+    
+    .io-info-item {
+        display: flex;
+        flex-direction: column;
+        background-color: #f8fafc;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    
+    .io-info-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-color: #cbd5e1;
+    }
+    
+    .io-info-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .io-info-value {
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .measurement-value {
+        padding: 0.35rem 0.75rem;
+        background-color: #eff6ff;
+        border-radius: 0.5rem;
+        color: #1e40af;
+        font-family: 'SF Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    
+    .text-muted {
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: normal;
+    }
+    
+    .standard-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background-color: #f1f5f9;
+        border-radius: 0.5rem;
+        border-left: 3px solid #3b82f6;
+    }
+    
+    .standard-indicator i {
+        color: #3b82f6;
+        font-size: 0.9rem;
+    }
+    
+    .standard-value {
+        color: #334155;
+        font-weight: 600;
+    }
+    
+    .deviation-indicator {
+        margin-top: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .deviation-indicator.warning {
+        background-color: #fff7ed;
+        color: #9a3412;
+        border-left: 3px solid #f97316;
+    }
+    
+    .deviation-indicator.critical {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border-left: 3px solid #ef4444;
+    }
+    
+    .deviation-indicator i {
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .io-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="io-info-container">
+<div class="io-info-section">
+    <h4>Tool Information</h4>
+        <div class="io-info-grid">
+    <div class="io-info-item">
+        <div class="io-info-label">Manufacturer</div>
+        <div class="io-info-value">{{ io.tool.manufacturer.value }}</div>
+            </div>
+    </div>
+</div>
+
+<div class="io-info-section">
+    <h4>Measurements</h4>
+        <div class="io-info-grid">
+            {% set measurements = {
+                'Section': {'sample': io.section, 'standard': io.measure.section, 'unit': 'mm²', 'icon': 'fas fa-vector-square'},
+                'Crimping Height': {'sample': io.crimpingHeight, 'standard': io.measure.crimpingHeight, 'unit': 'mm', 'icon': 'fas fa-arrows-alt-v'},
+                'Insulation Height': {'sample': io.insulationHeight, 'standard': io.measure.insulationHeight, 'unit': 'mm', 'icon': 'fas fa-arrows-alt-v'},
+                'Crimping Width': {'sample': io.crimpingWidth, 'standard': io.measure.crimpingWidth, 'unit': 'mm', 'icon': 'fas fa-arrows-alt-h'},
+                'Insulation Width': {'sample': io.insulationWidth, 'standard': io.measure.insulationWidth, 'unit': 'mm', 'icon': 'fas fa-arrows-alt-h'}
+            } %}
+            
+            {% for label, data in measurements %}
+                {% set diff = data.sample - data.standard %}
+                {% set diffPercent = (diff / data.standard) * 100 %}
+                {% set status = '' %}
+                {% set statusClass = '' %}
+                
+                {% if diffPercent > 10 or diffPercent < -10 %}
+                    {% set status = 'Critical Deviation' %}
+                    {% set statusClass = 'critical' %}
+                {% elseif diffPercent > 5 or diffPercent < -5 %}
+                    {% set status = 'Warning' %}
+                    {% set statusClass = 'warning' %}
+                {% endif %}
+                
+    <div class="io-info-item">
+                    <div class="io-info-label">
+                        <i class="{{ data.icon }} mr-1"></i> {{ label }}
+    </div>
+        <div class="io-info-value">
+                        <span class="measurement-value">{{ data.sample }} {{ data.unit }}</span>
+        </div>
+                    <div class="standard-indicator">
+                        <i class="fas fa-ruler-combined"></i>
+                        <span>Standard: <span class="standard-value">{{ data.standard }} {{ data.unit }}</span></span>
+    </div>
+                    
+                    {% if status != '' %}
+                        <div class="deviation-indicator {{ statusClass }}">
+                            <i class="fas {% if statusClass == 'critical' %}fa-exclamation-triangle{% else %}fa-exclamation-circle{% endif %}"></i>
+                            <span>
+                                {{ status }}: {{ diff > 0 ? '+' : '' }}{{ diffPercent|number_format(1) }}%
+                                ({{ diff > 0 ? '+' : '' }}{{ diff|number_format(3) }} {{ data.unit }})
+                            </span>
+        </div>
+                    {% endif %}
+    </div>
+            {% endfor %}
+        </div>
+    </div>
+</div> 

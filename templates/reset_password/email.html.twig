@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset - LEONI ToolFlow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #002B5C 0%, #1976d2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        
+        .description {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+        
+        .code-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            border: 2px solid #e9ecef;
+            position: relative;
+        }
+        
+        .code-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #002B5C, #1976d2);
+            border-radius: 12px;
+            z-index: -1;
+        }
+        
+        .code-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .verification-code {
+            background: #ffffff;
+            padding: 20px 40px;
+            font-size: 36px;
+            font-weight: bold;
+            color: #002B5C;
+            border-radius: 8px;
+            display: inline-block;
+            letter-spacing: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e9ecef;
+            min-width: 280px;
+        }
+        
+        .warning-section {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .warning-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 20px;
+        }
+        
+        .warning-content {
+            margin-left: 35px;
+        }
+        
+        .warning-title {
+            font-weight: 600;
+            color: #e65100;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .warning-text {
+            color: #bf360c;
+            font-size: 14px;
+        }
+        
+        .security-section {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .security-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 20px;
+        }
+        
+        .security-content {
+            margin-left: 35px;
+        }
+        
+        .security-title {
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .security-text {
+            color: #1b5e20;
+            font-size: 14px;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 35px 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #002B5C 0%, #1976d2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .footer-copyright {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .footer-timestamp {
+            color: #bbb;
+            font-size: 11px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px;
+            }
+            
+            .verification-code {
+                font-size: 28px;
+                letter-spacing: 6px;
+                padding: 15px 25px;
+                min-width: 240px;
+            }
+            
+            .logo {
+                font-size: 28px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">LEONI</div>
+            <div class="title">Password Reset Verification</div>
+            <div class="subtitle">ToolFlow Security</div>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">Hello,</div>
+            
+            <div class="description">
+                We received a request to reset your password for your <strong>LEONI ToolFlow</strong> account. 
+                To proceed with the password reset, please use the following verification code:
+            </div>
+            
+            <div class="code-section">
+                <div class="code-label">Verification Code</div>
+                <div class="verification-code">{{ code }}</div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="cta-section">
+                <a href="{{ url('app_login') }}" class="cta-button">
+                    Return to Login
+                </a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-text">
+                This is an automated message from LEONI ToolFlow. Please do not reply to this email.
+            </div>
+            <div class="footer-copyright">
+                &copy; {{ "now"|date("Y") }} LEONI. All rights reserved.
+            </div>
+            <div class="footer-timestamp">
+                Sent on {{ "now"|date("F j, Y, g:i a") }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
